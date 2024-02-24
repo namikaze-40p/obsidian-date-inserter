@@ -1,19 +1,36 @@
 @import './node_modules/vanillajs-datepicker/sass/datepicker';
 
 .modal.date-inserter-modal {
-    width: 290px;
+    width: 300px;
 
     .datepicker-view {
         color: #000;
     }
 
     .modal-content {
-        height: 303px;
+        height: 305px;
+		display: flex;
+		justify-content: center;
     }
 
     .invisible-input {
-        opacity: 0;
+		opacity: 0;
         pointer-events: none;
-        height: 0px;
-    }
+        height: 30px;
+	}
+	.datepicker {
+		left: initial !important;
+		top: 30px !important;
+	}
+}
+
+.setting-item-description {
+	padding: 0 0 1rem 0;
+	
+	.format-details {
+		margin-top: 0.5rem;
+	}
+	a {
+		margin-left: 0.5rem;
+	}
 }

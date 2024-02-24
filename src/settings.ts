@@ -77,14 +77,12 @@ export class SettingTab extends PluginSettingTab {
 			el.createDiv('').setText('ex1) mm/dd/yyyy => 01/01/2024');
 			el.createDiv('').setText('ex2) DD mm-dd => Monday 01-01');
 
-			const divEl = el.createDiv('');
+			const divEl = el.createDiv('format-details');
 			divEl.setText('Please check the link below for format details.');
-			divEl.style.marginTop = '0.5rem';
 
 			const aTag = el.createEl('a');
 			aTag.setText('vanillajs-datepicker > Date String & Format');
 			aTag.setAttrs({ href: 'https://mymth.github.io/vanillajs-datepicker/#/date-string+format' });
-			aTag.style.marginLeft = '0.5rem';
 		})
 
 		new Setting(containerEl)
