@@ -3,7 +3,7 @@
 	"name": "Date Inserter",
 	"version": "0.1.0",
 	"minAppVersion": "0.15.0",
-	"description": "This plugin can insert a date at the cursor position using a calendar.",
+	"description": "Insert a date at the cursor position using a calendar.",
 	"author": "namikaze-40p",
 	"authorUrl": "https://github.com/namikaze-40p",
 	"isDesktopOnly": false
