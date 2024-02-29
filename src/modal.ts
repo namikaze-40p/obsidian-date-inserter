@@ -6,7 +6,7 @@ import { DatepickerOptions } from 'vanillajs-datepicker/Datepicker';
 import locales from './locales';
 import { Settings } from './settings.js';
 
-Object.assign(Datepicker.locales, locales.ja);
+Object.assign(Datepicker.locales, locales);
 
 export class CalendarModal extends Modal {
 	settings: Settings;
