@@ -7,7 +7,7 @@ The calendar can be called up in one of the following ways.
 - Using hotkey. (**recommend**)
 - Selecting `Date Inserter: Open Calendar` from the command palette.
 
-![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-date-inserter/master/demo/%20date-insert.gif)
+![demo](https://raw.githubusercontent.com/namikaze-40p/obsidian-date-inserter/main/demo/insert-date.gif)
 
 - You can custom format of date.
   - ex1) `mm/dd/yyyy` => `01/23/2024`
