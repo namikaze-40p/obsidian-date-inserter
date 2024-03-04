@@ -1,4 +1,9 @@
-export default {
+export const LANGUAGES = {
+	en: 'English',
+	ja: '日本語',
+};
+
+export const LOCALES = {
 	// English
 	en: {
 		days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],

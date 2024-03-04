@@ -3,10 +3,10 @@ import { App, Editor, Modal } from 'obsidian';
 import { Datepicker } from 'vanillajs-datepicker';
 import { DatepickerOptions } from 'vanillajs-datepicker/Datepicker';
 
-import locales from './locales';
+import { LOCALES } from './locales';
 import { Settings } from './settings.js';
 
-Object.assign(Datepicker.locales, locales);
+Object.assign(Datepicker.locales, LOCALES);
 
 export class CalendarModal extends Modal {
 	settings: Settings;

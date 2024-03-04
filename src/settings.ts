@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 
 import DateInserter from './main.js';
+import { LANGUAGES } from './locales.js';
 
 export interface Settings {
 	format: string;
@@ -32,11 +33,6 @@ export const DEFAULT_SETTINGS: Settings = {
 		fri: undefined,
 		sat: undefined,
 	},
-};
-
-const LANGUAGES = {
-	en: 'English',
-	ja: '日本語',
 };
 
 const DAY_OF_WEEK = {
