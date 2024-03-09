@@ -62,7 +62,7 @@ export class SettingTab extends PluginSettingTab {
 			.setName('Date format')
 			.setDesc('Date format to be inserted.')
 			.addText(text => text
-				.setPlaceholder('dd/mm/yyyy')
+				.setPlaceholder('mm/dd/yyyy')
 				.setValue(this.plugin.settings.format)
 				.onChange(async value => {
 					this.plugin.settings.format = value;
