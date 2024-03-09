@@ -58,6 +58,8 @@ export class SettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
+		containerEl.createEl('h2').setText('Date Inserter - Settings');
+
 		new Setting(containerEl)
 			.setName('Date format')
 			.setDesc('Date format to be inserted.')
@@ -69,9 +71,10 @@ export class SettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		containerEl.createDiv('setting-item-description', el => {
-			el.createDiv('').setText('ex1) mm/dd/yyyy => 01/01/2024');
-			el.createDiv('').setText('ex2) DD mm-dd => Monday 01-01');
+		containerEl.createDiv('setting-date-format-description', el => {
+			el.createDiv('').setText('ex1) mm/dd/yyyy => 01/23/2024');
+			el.createDiv('').setText('ex2) DD mm-dd => Tuesday 01-23');
+			el.createDiv('').setText('ex3) yyyy.mm.dd(D) => 2024.01.23(Tue)');
 
 			const divEl = el.createDiv('format-details');
 			divEl.setText('Please check the link below for format details.');
@@ -126,7 +129,8 @@ export class SettingTab extends PluginSettingTab {
 			.setName('Highlight days of week')
 			.setDesc('Days of the week to highlight in the calendar.');
 
-		new Setting(containerEl)
+		containerEl.createDiv('setting-day-of-week', el => {
+			new Setting(el)
 			.setDesc('Sunday')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.daysOfWeekHighlighted.sun === DAY_OF_WEEK.sun)
@@ -135,58 +139,60 @@ export class SettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		new Setting(containerEl)
-			.setDesc('Monday')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.daysOfWeekHighlighted.mon === DAY_OF_WEEK.mon)
-				.onChange(async value => {
-					this.plugin.settings.daysOfWeekHighlighted.mon = value ? DAY_OF_WEEK.mon : undefined;
-					await this.plugin.saveSettings();
-				}));
+			new Setting(el)
+				.setDesc('Monday')
+				.addToggle(toggle => toggle
+					.setValue(this.plugin.settings.daysOfWeekHighlighted.mon === DAY_OF_WEEK.mon)
+					.onChange(async value => {
+						this.plugin.settings.daysOfWeekHighlighted.mon = value ? DAY_OF_WEEK.mon : undefined;
+						await this.plugin.saveSettings();
+					}));
 
-		new Setting(containerEl)
-			.setDesc('Tuesday')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.daysOfWeekHighlighted.tue === DAY_OF_WEEK.tue)
-				.onChange(async value => {
-					this.plugin.settings.daysOfWeekHighlighted.tue = value ? DAY_OF_WEEK.tue : undefined;
-					await this.plugin.saveSettings();
-				}));
+			new Setting(el)
+				.setDesc('Tuesday')
+				.addToggle(toggle => toggle
+					.setValue(this.plugin.settings.daysOfWeekHighlighted.tue === DAY_OF_WEEK.tue)
+					.onChange(async value => {
+						this.plugin.settings.daysOfWeekHighlighted.tue = value ? DAY_OF_WEEK.tue : undefined;
+						await this.plugin.saveSettings();
+					}));
 
-		new Setting(containerEl)
-			.setDesc('Wednesday')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.daysOfWeekHighlighted.wed === DAY_OF_WEEK.wed)
-				.onChange(async value => {
-					this.plugin.settings.daysOfWeekHighlighted.wed = value ? DAY_OF_WEEK.wed : undefined;
-					await this.plugin.saveSettings();
-				}));
+			new Setting(el)
+				.setDesc('Wednesday')
+				.addToggle(toggle => toggle
+					.setValue(this.plugin.settings.daysOfWeekHighlighted.wed === DAY_OF_WEEK.wed)
+					.onChange(async value => {
+						this.plugin.settings.daysOfWeekHighlighted.wed = value ? DAY_OF_WEEK.wed : undefined;
+						await this.plugin.saveSettings();
+					}));
 
-		new Setting(containerEl)
-			.setDesc('Thursday')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.daysOfWeekHighlighted.thu === DAY_OF_WEEK.thu)
-				.onChange(async value => {
-					this.plugin.settings.daysOfWeekHighlighted.thu = value ? DAY_OF_WEEK.thu : undefined;
-					await this.plugin.saveSettings();
-				}));
+			new Setting(el)
+				.setDesc('Thursday')
+				.addToggle(toggle => toggle
+					.setValue(this.plugin.settings.daysOfWeekHighlighted.thu === DAY_OF_WEEK.thu)
+					.onChange(async value => {
+						this.plugin.settings.daysOfWeekHighlighted.thu = value ? DAY_OF_WEEK.thu : undefined;
+						await this.plugin.saveSettings();
+					}));
 
-		new Setting(containerEl)
-			.setDesc('Friday')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.daysOfWeekHighlighted.fri === DAY_OF_WEEK.fri)
-				.onChange(async value => {
-					this.plugin.settings.daysOfWeekHighlighted.fri = value ? DAY_OF_WEEK.fri : undefined;
-					await this.plugin.saveSettings();
-				}));
+			new Setting(el)
+				.setDesc('Friday')
+				.addToggle(toggle => toggle
+					.setValue(this.plugin.settings.daysOfWeekHighlighted.fri === DAY_OF_WEEK.fri)
+					.onChange(async value => {
+						this.plugin.settings.daysOfWeekHighlighted.fri = value ? DAY_OF_WEEK.fri : undefined;
+						await this.plugin.saveSettings();
+					}));
 
-		new Setting(containerEl)
-			.setDesc('Saturday')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.daysOfWeekHighlighted.sat === DAY_OF_WEEK.sat)
-				.onChange(async value => {
-					this.plugin.settings.daysOfWeekHighlighted.sat = value ? DAY_OF_WEEK.sat : undefined;
-					await this.plugin.saveSettings();
-				}));
+			new Setting(el)
+				.setDesc('Saturday')
+				.addToggle(toggle => toggle
+					.setValue(this.plugin.settings.daysOfWeekHighlighted.sat === DAY_OF_WEEK.sat)
+					.onChange(async value => {
+						this.plugin.settings.daysOfWeekHighlighted.sat = value ? DAY_OF_WEEK.sat : undefined;
+						await this.plugin.saveSettings();
+					}));
+		});
+
 	}
 }

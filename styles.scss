@@ -24,13 +24,20 @@
 	}
 }
 
-.setting-item-description {
-	padding: 0 0 1rem 0;
-	
+.setting-date-format-description {
+	padding: 0 0 1rem 0.5rem;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	line-height: var(--line-height-tight);
+
 	.format-details {
 		margin-top: 0.5rem;
 	}
 	a {
 		margin-left: 0.5rem;
-	}
+	}	
+}
+
+.setting-day-of-week {
+	padding-left: 0.5rem;
 }
