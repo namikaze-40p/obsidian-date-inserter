@@ -7,7 +7,8 @@
 		"esbuild.config.mjs",
 		"package-lock.json",
 		"package.json",
-		"tsconfig.json"
+		"tsconfig.json",
+		"src/locales.ts"
 	  ],
     "words": [
         "callout",
