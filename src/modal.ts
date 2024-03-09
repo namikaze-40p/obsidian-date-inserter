@@ -11,6 +11,7 @@ Object.assign(Datepicker.locales, locales);
 export class CalendarModal extends Modal {
 	settings: Settings;
 	editor: Editor;
+	isSelected = false;
 
 	constructor(app: App, settings: Settings, editor: Editor) {
 		super(app);
@@ -32,8 +33,11 @@ export class CalendarModal extends Modal {
 
 		inputEl.addEventListener('hide', () => this.close());
 		inputEl.addEventListener('changeDate', () => {
-			this.insertDateToCursorPosition(inputEl.value);
-			setTimeout(() => this.close(), 0);
+			if (!this.isSelected) {
+				this.isSelected = true;
+				this.insertDateToCursorPosition(inputEl.value);
+				setTimeout(() => this.close(), 0);
+			}
 		});
 	}
 
