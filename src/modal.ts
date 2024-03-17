@@ -25,7 +25,7 @@ export class CalendarModal extends Modal {
 		
 		const inputEl = contentEl.createEl('input');
 		inputEl.addClass('invisible-input');
-		inputEl.setAttrs({ type: 'text' });
+		inputEl.setAttrs({ type: 'text', readonly: true });
 
 		const options = this.generateOptions(this.settings);
 		const datepicker = new Datepicker(inputEl, options);
