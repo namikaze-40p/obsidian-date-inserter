@@ -14,7 +14,8 @@ The calendar can be called up in one of the following ways.
   - ex2) `DD mm-dd` => `Tuesday 01-23`
   - ex3) `yyyy.mm.dd(D)` => `2024.01.23(Tue)`
 
-**Note:** The calendar for this plugin uses [vanillajs-datepicker](https://mymth.github.io/vanillajs-datepicker/#/). Please check this link ([vanillajs-datepicker > Date String & Format](https://mymth.github.io/vanillajs-datepicker/#/date-string+format)) for format details.
+> [!NOTE]
+> The calendar for this plugin uses [vanillajs-datepicker](https://mymth.github.io/vanillajs-datepicker/#/). Please check this link ([vanillajs-datepicker > Date String & Format](https://mymth.github.io/vanillajs-datepicker/#/date-string+format)) for format details.
 
 ## Installation
 
@@ -51,6 +52,5 @@ You can also install this plugin using the BRAT plugin.
 1. Install BRAT using the Obsidian Plugin manager
 1. In your Obsidian settings on the left, select BRAT in the list.
 1. In BRAT settings, click the button Add Beta Plugin
-1. In the textbox, supply the URL to this repo
-	- https://github.com/namikaze-40p/obsidian-date-inserter
+1. In the textbox, supply the URL to this repo => `https://github.com/namikaze-40p/obsidian-date-inserter`
 1. Once `Date Inserter` is installed, activate it in your Obsidian settings.
