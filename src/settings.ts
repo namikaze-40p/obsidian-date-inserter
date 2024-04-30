@@ -6,6 +6,7 @@ import { LANGUAGES } from './locales.js';
 export interface Settings {
 	format: string;
 	language: string;
+	colorScheme: keyof typeof COLOR_SCHEMES;
 	weekStart: number;
 	todayHighlight: boolean;
 	daysOfWeekHighlighted: {
@@ -22,6 +23,7 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
 	format: 'mm/dd/yyyy',
 	language: 'en',
+	colorScheme: 'light',
 	weekStart: 0,
 	todayHighlight: true,
 	daysOfWeekHighlighted: {
@@ -33,6 +35,11 @@ export const DEFAULT_SETTINGS: Settings = {
 		fri: undefined,
 		sat: undefined,
 	},
+};
+
+const COLOR_SCHEMES = {
+	light: 'Light',
+	dark: 'Dark',
 };
 
 const DAY_OF_WEEK = {
@@ -92,6 +99,17 @@ export class SettingTab extends PluginSettingTab {
 				.setValue(this.plugin.settings.language)
 				.onChange(async value => {
 					this.plugin.settings.language = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Color scheme')
+			.setDesc('Select color scheme.')
+			.addDropdown(dropdown => dropdown
+				.addOptions(COLOR_SCHEMES)
+				.setValue(this.plugin.settings.colorScheme)
+				.onChange(async value => {
+					this.plugin.settings.colorScheme = value as keyof typeof COLOR_SCHEMES;
 					await this.plugin.saveSettings();
 				}));
 				

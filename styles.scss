@@ -58,3 +58,59 @@
 .setting-day-of-week {
 	padding-left: 0.5rem;
 }
+
+// Color Scheme for dark
+.modal.date-inserter-modal.dark-theme {
+	.datepicker-picker {
+		background-color: var(--color-base-20) !important;
+	}
+
+	.datepicker-dropdown .datepicker-picker {
+		box-shadow: 0 2px 3px var(--color-base-40), 0 0 0 1px var(--color-base-40) !important;
+	}
+
+	.datepicker-controls .button {
+		background-color: var(--color-base-20) !important;
+		color: var(--text-normal) !important;
+	}
+
+	.datepicker-header .datepicker-controls .button {
+		border-color: transparent !important;
+	}
+
+	.datepicker-header .datepicker-controls .button:hover {
+		background-color: var(--color-base-40) !important;
+	}
+
+	.datepicker-header .datepicker-controls .button:active {
+		background-color: var(--color-base-40) !important;
+	}
+
+	.datepicker span {
+		color: var(--text-normal) !important;
+	}
+
+	.datepicker-cell:not(.disabled):hover {
+		background-color: var(--color-base-30) !important;
+	}
+
+	.datepicker-cell.focused:not(.selected) {
+		background-color: var(--color-base-40) !important;
+	}
+
+	.datepicker-cell.highlighted:not(.selected):not(.range):not(.today) {
+		background-color: var(--color-base-30) !important;
+	}
+
+	.datepicker-cell.highlighted:not(.selected):not(.range):not(.today):not(.disabled):hover {
+		background-color: var(--color-base-40) !important;
+	}
+
+	.datepicker-cell.highlighted:not(.selected):not(.range):not(.today).focused {
+		background-color: var(--color-base-40) !important;
+	}
+
+	.datepicker-cell.today:not(.selected) {
+		background-color: hsl(171, 100%, 30%) !important;
+	}
+}
