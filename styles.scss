@@ -60,7 +60,7 @@
 }
 
 // Color Scheme for dark
-.modal.date-inserter-modal.dark-theme {
+body.theme-dark .modal.date-inserter-modal {
 	.datepicker-picker {
 		background-color: var(--color-base-20) !important;
 	}

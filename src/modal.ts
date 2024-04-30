@@ -21,9 +21,6 @@ export class CalendarModal extends Modal {
 
 	onOpen() {
 		this.modalEl.addClass('date-inserter-modal');
-		if (this.settings.colorScheme === 'dark') {
-			this.modalEl.addClass('dark-theme');
-		}
 		const { contentEl } = this;
 		
 		const inputEl = contentEl.createEl('input');
