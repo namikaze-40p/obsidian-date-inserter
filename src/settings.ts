@@ -54,10 +54,8 @@ export class SettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		const {containerEl} = this;
-
+		const { containerEl } = this;
 		containerEl.empty();
-
 		containerEl.createEl('h2').setText('Date Inserter - Settings');
 
 		new Setting(containerEl)
@@ -110,10 +108,10 @@ export class SettingTab extends PluginSettingTab {
 				})
 				.setValue(`${this.plugin.settings.weekStart}`)
 				.onChange(async value => {
-					console.log(value);
 					this.plugin.settings.weekStart = parseInt(value, 10) || DAY_OF_WEEK.sun;
 					await this.plugin.saveSettings();
-				}));
+				}),
+			);
 
 		new Setting(containerEl)
 			.setName('Highlight the today')
@@ -137,7 +135,8 @@ export class SettingTab extends PluginSettingTab {
 				.onChange(async value => {
 					this.plugin.settings.daysOfWeekHighlighted.sun = value ? DAY_OF_WEEK.sun : undefined;
 					await this.plugin.saveSettings();
-				}));
+				}),
+			);
 
 			new Setting(el)
 				.setDesc('Monday')
@@ -146,7 +145,8 @@ export class SettingTab extends PluginSettingTab {
 					.onChange(async value => {
 						this.plugin.settings.daysOfWeekHighlighted.mon = value ? DAY_OF_WEEK.mon : undefined;
 						await this.plugin.saveSettings();
-					}));
+					}),
+				);
 
 			new Setting(el)
 				.setDesc('Tuesday')
@@ -155,7 +155,8 @@ export class SettingTab extends PluginSettingTab {
 					.onChange(async value => {
 						this.plugin.settings.daysOfWeekHighlighted.tue = value ? DAY_OF_WEEK.tue : undefined;
 						await this.plugin.saveSettings();
-					}));
+					}),
+				);
 
 			new Setting(el)
 				.setDesc('Wednesday')
@@ -164,7 +165,8 @@ export class SettingTab extends PluginSettingTab {
 					.onChange(async value => {
 						this.plugin.settings.daysOfWeekHighlighted.wed = value ? DAY_OF_WEEK.wed : undefined;
 						await this.plugin.saveSettings();
-					}));
+					}),
+				);
 
 			new Setting(el)
 				.setDesc('Thursday')
@@ -173,7 +175,8 @@ export class SettingTab extends PluginSettingTab {
 					.onChange(async value => {
 						this.plugin.settings.daysOfWeekHighlighted.thu = value ? DAY_OF_WEEK.thu : undefined;
 						await this.plugin.saveSettings();
-					}));
+					}),
+				);
 
 			new Setting(el)
 				.setDesc('Friday')
@@ -182,7 +185,8 @@ export class SettingTab extends PluginSettingTab {
 					.onChange(async value => {
 						this.plugin.settings.daysOfWeekHighlighted.fri = value ? DAY_OF_WEEK.fri : undefined;
 						await this.plugin.saveSettings();
-					}));
+					}),
+				);
 
 			new Setting(el)
 				.setDesc('Saturday')
@@ -191,8 +195,8 @@ export class SettingTab extends PluginSettingTab {
 					.onChange(async value => {
 						this.plugin.settings.daysOfWeekHighlighted.sat = value ? DAY_OF_WEEK.sat : undefined;
 						await this.plugin.saveSettings();
-					}));
+					}),
+				);
 		});
-
 	}
 }

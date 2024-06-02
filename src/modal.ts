@@ -21,9 +21,8 @@ export class CalendarModal extends Modal {
 
 	onOpen() {
 		this.modalEl.addClass('date-inserter-modal');
-		const { contentEl } = this;
 		
-		const inputEl = contentEl.createEl('input');
+		const inputEl = this.contentEl.createEl('input');
 		inputEl.addClass('invisible-input');
 		inputEl.setAttrs({ type: 'text', readonly: true });
 
@@ -42,8 +41,7 @@ export class CalendarModal extends Modal {
 	}
 
 	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
+		this.contentEl.empty();
 	}
 
 	private insertDateToCursorPosition(date: string): void {
