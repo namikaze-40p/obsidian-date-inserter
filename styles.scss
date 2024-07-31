@@ -22,6 +22,15 @@
 	.datepicker {
 		left: initial !important;
 		top: 30px !important;
+
+		.datepicker-picker {
+			position: relative;
+			border: 0;
+		
+			.datepicker-header {
+				display: block;
+			}
+		}
 	}
 }
 
