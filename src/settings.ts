@@ -56,7 +56,6 @@ export class SettingTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
-		containerEl.createEl('h2').setText('Date Inserter - Settings');
 
 		new Setting(containerEl)
 			.setName('Date format')
