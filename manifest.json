@@ -1,7 +1,7 @@
 {
 	"id": "date-inserter",
 	"name": "Date Inserter",
-	"version": "0.3.4",
+	"version": "0.3.5",
 	"minAppVersion": "1.6.7",
 	"description": "Insert a date at the cursor position using a calendar.",
 	"author": "namikaze-40p",
