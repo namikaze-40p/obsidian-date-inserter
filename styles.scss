@@ -65,18 +65,26 @@
 	}
 }
 
-.is-phone .modal.date-inserter-modal {
-	position: relative;
-	width: 320px;
-	height: 350px;	
-
-	.modal-content {
-		position: initial;
-		flex-direction: initial;
-	}
-
+.is-mobile .modal.date-inserter-modal {
 	.datepicker {
-		top: 35px !important;
+		width: 303px;
+		
+		.days {
+			.dow {
+				width: 42.75px;;
+				height: 28.5px;
+			}
+			.day {
+				width: 42.75px;;
+				height: 42.75px;
+			}
+		}
+	}
+}
+
+.is-phone .modal.date-inserter-modal {
+	.datepicker {
+		top: 0 !important;
 	}
 }
 
