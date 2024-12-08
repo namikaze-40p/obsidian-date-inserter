@@ -2,9 +2,11 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 
 import DateInserter from './main.js';
 import { LANGUAGES } from './locales.js';
+import { createStyles, deleteStyles } from './util.js';
 
 export interface Settings {
 	format: string;
+	format2: string;
 	language: string;
 	weekStart: number;
 	todayHighlight: boolean;
@@ -21,6 +23,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
 	format: 'mm/dd/yyyy',
+	format2: '',
 	language: 'en',
 	weekStart: 0,
 	todayHighlight: true,
@@ -80,6 +83,18 @@ export class SettingTab extends PluginSettingTab {
 			aTag.setText('vanillajs-datepicker > Date String & Format');
 			aTag.setAttrs({ href: 'https://mymth.github.io/vanillajs-datepicker/#/date-string+format' });
 		})
+
+		new Setting(containerEl)
+		.setName('Another date format (Optional)')
+		.setDesc('Another date format to be inserted. If set, display buttons to select a format at the bottom of the calendar. Buttons can be selected by clicking or by “1" or “2" shortcut keys.')
+		.addText(text => text
+			.setPlaceholder('mm/dd/yyyy')
+			.setValue(this.plugin.settings.format2)
+			.onChange(async value => {
+				this.plugin.settings.format2 = value;
+				await this.plugin.saveSettings();
+				this.updateStyleSheet();
+			}));
 
 		new Setting(containerEl)
 			.setName('Language')
@@ -197,5 +212,18 @@ export class SettingTab extends PluginSettingTab {
 					}),
 				);
 		});
+	}
+
+	updateStyleSheet(isTeardown = false): void {
+		deleteStyles();
+		if (isTeardown) {
+			return;
+		}
+
+		const { format2 } = this.plugin.settings;
+		const formatButtonsHeight = format2 ? '2.5rem' : '0px';
+		createStyles([
+			{ selector: '.modal.date-inserter-modal',  property: 'height', value: `calc(388px + ${formatButtonsHeight})` },
+		]);
 	}
 }

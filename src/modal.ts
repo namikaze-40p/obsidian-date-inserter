@@ -4,7 +4,7 @@ import { Datepicker } from 'vanillajs-datepicker';
 import { DatepickerOptions } from 'vanillajs-datepicker/Datepicker';
 
 import { LOCALES } from './locales';
-import { Settings } from './settings.js';
+import { DEFAULT_SETTINGS, Settings } from './settings.js';
 
 Object.assign(Datepicker.locales, LOCALES);
 
@@ -12,6 +12,7 @@ export class CalendarModal extends Modal {
 	settings: Settings;
 	editor: Editor;
 	isSelected = false;
+	isClosed = false;
 
 	constructor(app: App, settings: Settings, editor: Editor) {
 		super(app);
@@ -30,7 +31,14 @@ export class CalendarModal extends Modal {
 		const datepicker = new Datepicker(inputEl, options);
 		datepicker.show();
 
-		inputEl.addEventListener('hide', () => this.close());
+		inputEl.addEventListener('hide', (ev: Event & { detail: { viewDate: Date }}) => {
+			setTimeout(() => {
+				if (!this.isClosed) {
+					datepicker.show();
+					datepicker.setFocusedDate(ev.detail.viewDate);
+				}
+			}, 0);
+		});
 		inputEl.addEventListener('changeDate', () => {
 			if (!this.isSelected) {
 				this.isSelected = true;
@@ -38,9 +46,14 @@ export class CalendarModal extends Modal {
 				setTimeout(() => this.close(), 0);
 			}
 		});
+
+		if (this.settings.format2) {
+			this.setupFormatButtons(datepicker);
+		}
 	}
 
 	onClose() {
+		this.isClosed = true;
 		this.contentEl.empty();
 	}
 
@@ -63,5 +76,41 @@ export class CalendarModal extends Modal {
 			options.format = settings.format;
 		}
 		return options;
+	}
+
+	private setupFormatButtons(datepicker: Datepicker): void {
+		this.contentEl.createDiv('format-buttons', el => {
+			const { format, format2 } = this.settings;
+			
+			const formatBtn1 = el.createEl('button');
+			formatBtn1.createSpan('').textContent = format || DEFAULT_SETTINGS.format;
+			formatBtn1.addEventListener('click', () => {
+				datepicker.config.format = format;
+				formatBtn1.addClass('selected');
+				formatBtn2.removeClass('selected');
+			});
+			formatBtn1.addClass('selected');
+
+			const formatBtn2 = el.createEl('button');
+			formatBtn2.createSpan('').textContent = format2;
+			formatBtn2.addEventListener('click', () => {
+				datepicker.config.format = format2
+				formatBtn2.addClass('selected');
+				formatBtn1.removeClass('selected');
+			});
+	
+			this.modalEl.addEventListener('keyup', (ev) => {
+				switch (ev.key) {
+					case '1':
+						formatBtn1.click();
+						break;
+					case '2':
+						formatBtn2.click();
+						break;
+					default:
+						// nop
+				}
+			});
+		});
 	}
 }
