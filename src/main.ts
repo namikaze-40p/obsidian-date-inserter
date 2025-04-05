@@ -18,6 +18,14 @@ export default class DateInserter extends Plugin {
 			},
 		});
 
+		this.addCommand({
+			id: 'copy-date-to-clipboard',
+			name: 'Copy Date to Clipboard',
+			callback: () => {
+				new CalendarModal(this.app, this.settings).open();
+			},
+		});
+
 		this.settingTab = new SettingTab(this.app, this);
 		this.addSettingTab(this.settingTab);
 		this.settingTab.updateStyleSheet();
