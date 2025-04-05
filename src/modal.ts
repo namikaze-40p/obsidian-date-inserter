@@ -1,4 +1,4 @@
-import { App, Editor, Modal } from 'obsidian';
+import { App, Editor, Modal, Notice } from 'obsidian';
 
 import { Datepicker } from 'vanillajs-datepicker';
 import { DatepickerOptions } from 'vanillajs-datepicker/Datepicker';
@@ -14,10 +14,12 @@ export class CalendarModal extends Modal {
 	isSelected = false;
 	isClosed = false;
 
-	constructor(app: App, settings: Settings, editor: Editor) {
+	constructor(app: App, settings: Settings, editor?: Editor) {
 		super(app);
 		this.settings = settings;
-		this.editor = editor;
+		if (editor) {	
+			this.editor = editor;
+		}
 	}
 
 	onOpen() {
@@ -42,7 +44,13 @@ export class CalendarModal extends Modal {
 		inputEl.addEventListener('changeDate', () => {
 			if (!this.isSelected) {
 				this.isSelected = true;
-				this.insertDateToCursorPosition(inputEl.value);
+				if (this.editor) {
+					this.insertDateToCursorPosition(inputEl.value);
+				} else {
+					if (navigator.clipboard) {
+						navigator.clipboard.writeText(inputEl.value).then(() => new Notice('Date copied to clipboard.'));
+					}
+				}
 				setTimeout(() => this.close(), 0);
 			}
 		});
