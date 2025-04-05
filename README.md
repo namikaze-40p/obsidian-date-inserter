@@ -34,4 +34,4 @@ This is an [Obsidian](https://obsidian.md/) plugin which can insert a date at th
 ## Installation
 
 You can find and install this plugin through Obsidian’s Community Plugins Browser.  
-For detailed steps or alternative installation methods, click [here](https://raw.githubusercontent.com/namikaze-40p/obsidian-date-inserter/main/docs/installation.md).
+For detailed steps or alternative installation methods, click [here](https://github.com/namikaze-40p/obsidian-date-inserter/blob/0.5.0/docs/installation.md).
