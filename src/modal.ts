@@ -9,17 +9,11 @@ import { DEFAULT_SETTINGS, Settings } from './settings.js';
 Object.assign(Datepicker.locales, LOCALES);
 
 export class CalendarModal extends Modal {
-	settings: Settings;
-	editor: Editor;
-	isSelected = false;
-	isClosed = false;
+	private _isSelected = false;
+	private _isClosed = false;
 
-	constructor(app: App, settings: Settings, editor?: Editor) {
+	constructor(app: App, private _settings: Settings, private _editor?: Editor) {
 		super(app);
-		this.settings = settings;
-		if (editor) {	
-			this.editor = editor;
-		}
 	}
 
 	onOpen() {
@@ -29,23 +23,23 @@ export class CalendarModal extends Modal {
 		inputEl.addClass('invisible-input');
 		inputEl.setAttrs({ type: 'text', readonly: true });
 
-		const options = this.generateOptions(this.settings);
+		const options = this.generateOptions(this._settings);
 		const datepicker = new Datepicker(inputEl, options);
 		datepicker.show();
 
 		inputEl.addEventListener('hide', (ev: Event & { detail: { viewDate: Date }}) => {
 			setTimeout(() => {
-				if (!this.isClosed) {
+				if (!this._isClosed) {
 					datepicker.show();
 					datepicker.setFocusedDate(ev.detail.viewDate);
 				}
 			}, 0);
 		});
 		inputEl.addEventListener('changeDate', () => {
-			if (!this.isSelected) {
-				this.isSelected = true;
-				if (this.editor) {
-					this.insertDateToCursorPosition(inputEl.value);
+			if (!this._isSelected) {
+				this._isSelected = true;
+				if (this._editor) {
+					this.insertDateToCursorPosition(inputEl.value, this._editor);
 				} else {
 					if (navigator.clipboard) {
 						navigator.clipboard.writeText(inputEl.value).then(() => new Notice('Date copied to clipboard.'));
@@ -55,21 +49,21 @@ export class CalendarModal extends Modal {
 			}
 		});
 
-		if (this.settings.format2) {
+		if (this._settings.format2) {
 			this.setupFormatButtons(datepicker);
 		}
 	}
 
 	onClose() {
-		this.isClosed = true;
+		this._isClosed = true;
 		this.contentEl.empty();
 	}
 
-	private insertDateToCursorPosition(date: string): void {
-		const from = this.editor.getCursor('from');
-		const to = this.editor.getCursor('to');
-		this.editor.replaceRange(date, from, to);
-		this.editor.setCursor(from.line, from.ch + date.length);
+	private insertDateToCursorPosition(date: string, editor: Editor): void {
+		const from = editor.getCursor('from');
+		const to = editor.getCursor('to');
+		editor.replaceRange(date, from, to);
+		editor.setCursor(from.line, from.ch + date.length);
 	}
 
 	private generateOptions(settings: Settings): DatepickerOptions {
@@ -89,7 +83,7 @@ export class CalendarModal extends Modal {
 
 	private setupFormatButtons(datepicker: Datepicker): void {
 		this.contentEl.createDiv('format-buttons', el => {
-			const { format, format2 } = this.settings;
+			const { format, format2 } = this._settings;
 			
 			const formatBtn1 = el.createEl('button');
 			formatBtn1.createSpan('').textContent = format || DEFAULT_SETTINGS.format;

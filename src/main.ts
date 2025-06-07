@@ -5,7 +5,7 @@ import { CalendarModal } from './modal.js';
 
 export default class DateInserter extends Plugin {
 	settings: Settings;
-	settingTab: SettingTab;
+	private _settingTab: SettingTab;
 
 	async onload() {
 		await this.loadSettings();
@@ -26,13 +26,13 @@ export default class DateInserter extends Plugin {
 			},
 		});
 
-		this.settingTab = new SettingTab(this.app, this);
-		this.addSettingTab(this.settingTab);
-		this.settingTab.updateStyleSheet();
+		this._settingTab = new SettingTab(this.app, this);
+		this.addSettingTab(this._settingTab);
+		this._settingTab.updateStyleSheet();
 	}
 
 	onunload() {
-		this.settingTab.updateStyleSheet(true);
+		this._settingTab.updateStyleSheet(true);
 	}
 
 	async loadSettings() {
