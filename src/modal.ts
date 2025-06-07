@@ -16,7 +16,7 @@ export class CalendarModal extends Modal {
 		super(app);
 	}
 
-	onOpen() {
+	onOpen(): void {
 		this.modalEl.addClass('date-inserter-modal');
 		
 		const inputEl = this.contentEl.createEl('input');
@@ -54,7 +54,7 @@ export class CalendarModal extends Modal {
 		}
 	}
 
-	onClose() {
+	onClose(): void {
 		this._isClosed = true;
 		this.contentEl.empty();
 	}

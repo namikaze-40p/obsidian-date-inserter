@@ -7,7 +7,7 @@ export default class DateInserter extends Plugin {
 	settings: Settings;
 	private _settingTab: SettingTab;
 
-	async onload() {
+	async onload(): Promise<void> {
 		await this.loadSettings();
 
 		this.addCommand({
@@ -31,15 +31,15 @@ export default class DateInserter extends Plugin {
 		this._settingTab.updateStyleSheet();
 	}
 
-	onunload() {
+	onunload(): void {
 		this._settingTab.updateStyleSheet(true);
 	}
 
-	async loadSettings() {
+	async loadSettings(): Promise<void> {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
 
-	async saveSettings() {
+	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
 	}
 }
