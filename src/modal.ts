@@ -66,9 +66,10 @@ export class CalendarModal extends Modal {
 	}
 
 	private insertDateToCursorPosition(date: string): void {
-		const { line, ch } = this.editor.getCursor('from');
-		this.editor.replaceRange(date, { line, ch });
-		this.editor.setCursor(line, ch + date.length);
+		const from = this.editor.getCursor('from');
+		const to = this.editor.getCursor('to');
+		this.editor.replaceRange(date, from, to);
+		this.editor.setCursor(from.line, from.ch + date.length);
 	}
 
 	private generateOptions(settings: Settings): DatepickerOptions {
