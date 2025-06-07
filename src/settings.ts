@@ -80,19 +80,19 @@ export class SettingTab extends PluginSettingTab {
 			const aTag = el.createEl('a');
 			aTag.setText('vanillajs-datepicker > Date String & Format');
 			aTag.setAttrs({ href: 'https://mymth.github.io/vanillajs-datepicker/#/date-string+format' });
-		})
+		});
 
 		new Setting(containerEl)
-		.setName('Another date format (Optional)')
-		.setDesc('Another date format to be inserted. If set, display buttons to select a format at the bottom of the calendar. Buttons can be selected by clicking or by “1" or “2" shortcut keys.')
-		.addText(text => text
-			.setPlaceholder('mm/dd/yyyy')
-			.setValue(this._plugin.settings.format2)
-			.onChange(async value => {
-				this._plugin.settings.format2 = value;
-				await this._plugin.saveSettings();
-				this.updateStyleSheet();
-			}));
+			.setName('Another date format (Optional)')
+			.setDesc('Another date format to be inserted. If set, display buttons to select a format at the bottom of the calendar. Buttons can be selected by clicking or by “1" or “2" shortcut keys.')
+			.addText(text => text
+				.setPlaceholder('mm/dd/yyyy')
+				.setValue(this._plugin.settings.format2)
+				.onChange(async value => {
+					this._plugin.settings.format2 = value;
+					await this._plugin.saveSettings();
+					this.updateStyleSheet();
+				}));
 
 		new Setting(containerEl)
 			.setName('Language')
@@ -141,14 +141,14 @@ export class SettingTab extends PluginSettingTab {
 
 		containerEl.createDiv('setting-day-of-week', el => {
 			new Setting(el)
-			.setDesc('Sunday')
-			.addToggle(toggle => toggle
-				.setValue(this._plugin.settings.daysOfWeekHighlighted.sun === DAY_OF_WEEK.sun)
-				.onChange(async value => {
-					this._plugin.settings.daysOfWeekHighlighted.sun = value ? DAY_OF_WEEK.sun : undefined;
-					await this._plugin.saveSettings();
-				}),
-			);
+				.setDesc('Sunday')
+				.addToggle(toggle => toggle
+					.setValue(this._plugin.settings.daysOfWeekHighlighted.sun === DAY_OF_WEEK.sun)
+					.onChange(async value => {
+						this._plugin.settings.daysOfWeekHighlighted.sun = value ? DAY_OF_WEEK.sun : undefined;
+						await this._plugin.saveSettings();
+					}),
+				);
 
 			new Setting(el)
 				.setDesc('Monday')
