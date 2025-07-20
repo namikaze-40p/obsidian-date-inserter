@@ -75,12 +75,55 @@ export class CalendarModal extends Modal {
 			weekStart: settings.weekStart,
 			todayHighlight: settings.todayHighlight,
 		};
-		if (settings.format) {
-			options.format = settings.format;
+		const format = settings.format || DEFAULT_SETTINGS.format;
+		options.format = format;
+		const startDate = this.getStartDate(format);
+		if (startDate !== null) {
+			options.defaultViewDate = startDate;
 		}
 		return options;
 	}
 
+	private getStartDate(format: string): number | null {
+		const editor = this._editor;
+		if (!editor) return null
+		const selection = editor.getSelection();
+		if (selection) {
+			const parsed = Datepicker.parseDate(selection, format)
+			if (Datepicker.formatDate(parsed, format) === selection) {
+				return parsed
+			}
+		} else {
+			// will try to find a date around the cursor
+			const lineIdx = editor.getCursor().line
+			const line = editor.getLine(lineIdx)
+			const range = this.findWhitespacedTokenRange(line, editor.getCursor().ch)
+			const selection = line.substring(range[0], range[1]);
+			const parsed = Datepicker.parseDate(selection, format)
+			if (Datepicker.formatDate(parsed, format) === selection) {
+				editor.setSelection({ line: lineIdx, ch: range[0] }, { line: lineIdx, ch: range[1] });
+				return parsed
+			}
+		}
+		return null
+	}
+
+
+	// find in s around i positon, the part that is surrounded by whitespaces and return its range
+	// (or start and end of s)
+	private findWhitespacedTokenRange(s: string, i: number): [number,number] {
+		let from = i;
+		let to = i;
+		while (from > 0 && !s[from - 1].match(/\s/)) {
+			from--;
+		}
+		while (to < s.length && !s[to].match(/\s/)) {
+			to++;
+		}
+		return [from, to];
+	} 
+	
+	
 	private setupFormatButtons(datepicker: Datepicker): void {
 		this.contentEl.createDiv('format-buttons', el => {
 			const { format, format2 } = this._settings;
