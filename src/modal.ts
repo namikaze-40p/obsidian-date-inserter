@@ -69,60 +69,71 @@ export class CalendarModal extends Modal {
 	private generateOptions(settings: Settings): DatepickerOptions {
 		const { sun, mon, tue, wed, thu, fri, sat } = settings.daysOfWeekHighlighted;
 		const daysOfWeekHighlighted = [sun, mon, tue, wed, thu, fri, sat].filter(val => val !== undefined) as number[];
+		const format = settings.format || DEFAULT_SETTINGS.format;
 		const options: DatepickerOptions = {
 			language: settings.language,
 			daysOfWeekHighlighted,
 			weekStart: settings.weekStart,
 			todayHighlight: settings.todayHighlight,
+			format,
+			defaultViewDate: this.getStartDate([settings.format, settings.format2]),
 		};
-		const format = settings.format || DEFAULT_SETTINGS.format;
-		options.format = format;
-		const startDate = this.getStartDate(format);
-		if (startDate !== null) {
-			options.defaultViewDate = startDate;
-		}
 		return options;
 	}
 
-	private getStartDate(format: string): number | null {
+	private getStartDate(formats: string[]): number | undefined {
 		const editor = this._editor;
-		if (!editor) return null
+		if (!editor) {
+			return;
+		}
 		const selection = editor.getSelection();
 		if (selection) {
-			const parsed = Datepicker.parseDate(selection, format)
-			if (Datepicker.formatDate(parsed, format) === selection) {
-				return parsed
-			}
+			return this.parseSelection(formats, selection);
 		} else {
-			// will try to find a date around the cursor
-			const lineIdx = editor.getCursor().line
-			const line = editor.getLine(lineIdx)
-			const range = this.findWhitespacedTokenRange(line, editor.getCursor().ch)
-			const selection = line.substring(range[0], range[1]);
-			const parsed = Datepicker.parseDate(selection, format)
-			if (Datepicker.formatDate(parsed, format) === selection) {
-				editor.setSelection({ line: lineIdx, ch: range[0] }, { line: lineIdx, ch: range[1] });
-				return parsed
+			const lineNo = editor.getCursor().line;
+			const line = editor.getLine(lineNo);
+			const range = this.calcSelectionRange(formats, line, editor.getCursor().ch);
+			const parsed = this.parseSelection(formats, line.substring(...range));
+			if (parsed) {
+				editor.setSelection({ line: lineNo, ch: range[0] }, { line: lineNo, ch: range[1] });
 			}
+			return parsed;
 		}
-		return null
 	}
 
+	private parseSelection(formats: string[], selection: string): number | undefined {
+		const locale = this._settings.language || DEFAULT_SETTINGS.language;
+		const items = formats.map(format => ({ format, parsed: Datepicker.parseDate(selection, format, locale) }));
+		return items.find(({ format, parsed }) => parsed && Datepicker.formatDate(parsed, format, locale) === selection)?.parsed;
+	}
 
-	// find in s around i positon, the part that is surrounded by whitespaces and return its range
-	// (or start and end of s)
-	private findWhitespacedTokenRange(s: string, i: number): [number,number] {
-		let from = i;
-		let to = i;
-		while (from > 0 && !s[from - 1].match(/\s/)) {
-			from--;
+	private calcSelectionRange(formats: string[], str: string, cursorPos: number): [number, number] {
+		if (formats.every(format => str.length < format.length)) {
+			return [cursorPos, cursorPos];
 		}
-		while (to < s.length && !s[to].match(/\s/)) {
-			to++;
+		const [minPos, maxPos] = this.calcSearchRange(formats, cursorPos);
+		for (let start = minPos; start <= cursorPos; start++) {
+			for (let end = cursorPos; end <= maxPos; end++) {
+				const selection = str.substring(start, end);
+				const parsed = this.parseSelection(formats, selection);
+				if (parsed) {
+					return [start, end];
+				}
+			}
+			if (cursorPos <= start) {
+				break;
+			}
 		}
-		return [from, to];
-	} 
-	
+		return [cursorPos, cursorPos];
+	}
+
+	private calcSearchRange(formats: string[], cursorPos: number): [number, number] {
+		const { days, months } = LOCALES[this._settings.language] || DEFAULT_SETTINGS.language;
+		const maxLength = Math.max(...formats.map(format => format.length)) + Math.max(...days.map(day => day.length)) + Math.max(...months.map(month => month.length));
+		const min = Math.max(0, cursorPos - maxLength);
+		const max = maxLength + cursorPos;
+		return [min, max];
+	}
 	
 	private setupFormatButtons(datepicker: Datepicker): void {
 		this.contentEl.createDiv('format-buttons', el => {
