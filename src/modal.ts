@@ -69,18 +69,72 @@ export class CalendarModal extends Modal {
 	private generateOptions(settings: Settings): DatepickerOptions {
 		const { sun, mon, tue, wed, thu, fri, sat } = settings.daysOfWeekHighlighted;
 		const daysOfWeekHighlighted = [sun, mon, tue, wed, thu, fri, sat].filter(val => val !== undefined) as number[];
+		const format = settings.format || DEFAULT_SETTINGS.format;
 		const options: DatepickerOptions = {
 			language: settings.language,
 			daysOfWeekHighlighted,
 			weekStart: settings.weekStart,
 			todayHighlight: settings.todayHighlight,
+			format,
+			defaultViewDate: this.getStartDate([settings.format, settings.format2]),
 		};
-		if (settings.format) {
-			options.format = settings.format;
-		}
 		return options;
 	}
 
+	private getStartDate(formats: string[]): number | undefined {
+		const editor = this._editor;
+		if (!editor) {
+			return;
+		}
+		const selection = editor.getSelection();
+		if (selection) {
+			return this.parseSelection(formats, selection);
+		} else {
+			const lineNo = editor.getCursor().line;
+			const line = editor.getLine(lineNo);
+			const range = this.calcSelectionRange(formats, line, editor.getCursor().ch);
+			const parsed = this.parseSelection(formats, line.substring(...range));
+			if (parsed) {
+				editor.setSelection({ line: lineNo, ch: range[0] }, { line: lineNo, ch: range[1] });
+			}
+			return parsed;
+		}
+	}
+
+	private parseSelection(formats: string[], selection: string): number | undefined {
+		const locale = this._settings.language || DEFAULT_SETTINGS.language;
+		const items = formats.map(format => ({ format, parsed: Datepicker.parseDate(selection, format, locale) }));
+		return items.find(({ format, parsed }) => parsed && Datepicker.formatDate(parsed, format, locale) === selection)?.parsed;
+	}
+
+	private calcSelectionRange(formats: string[], str: string, cursorPos: number): [number, number] {
+		if (formats.every(format => str.length < format.length)) {
+			return [cursorPos, cursorPos];
+		}
+		const [minPos, maxPos] = this.calcSearchRange(formats, cursorPos);
+		for (let start = minPos; start <= cursorPos; start++) {
+			for (let end = cursorPos; end <= maxPos; end++) {
+				const selection = str.substring(start, end);
+				const parsed = this.parseSelection(formats, selection);
+				if (parsed) {
+					return [start, end];
+				}
+			}
+			if (cursorPos <= start) {
+				break;
+			}
+		}
+		return [cursorPos, cursorPos];
+	}
+
+	private calcSearchRange(formats: string[], cursorPos: number): [number, number] {
+		const { days, months } = LOCALES[this._settings.language] || DEFAULT_SETTINGS.language;
+		const maxLength = Math.max(...formats.map(format => format.length)) + Math.max(...days.map(day => day.length)) + Math.max(...months.map(month => month.length));
+		const min = Math.max(0, cursorPos - maxLength);
+		const max = maxLength + cursorPos;
+		return [min, max];
+	}
+	
 	private setupFormatButtons(datepicker: Datepicker): void {
 		this.contentEl.createDiv('format-buttons', el => {
 			const { format, format2 } = this._settings;
