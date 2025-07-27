@@ -5,6 +5,12 @@ import { LANGUAGES } from './locales.js';
 import { createStyles, deleteStyles } from './util.js';
 
 export interface Settings {
+	formats: {
+		format: string;
+		hasNameOfWeek: boolean;
+		hasNameOfMonth: boolean;
+		regexes: RegExp[];
+	}[];
 	format: string;
 	format2: string;
 	language: string;
@@ -22,6 +28,14 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+	formats: [
+		{
+			format: 'mm/dd/yyyy',
+			hasNameOfWeek: false,
+			hasNameOfMonth: false,
+			regexes: []
+		},
+	],
 	format: 'mm/dd/yyyy',
 	format2: '',
 	language: 'en',
@@ -63,9 +77,9 @@ export class SettingTab extends PluginSettingTab {
 			.setDesc('Date format to be inserted.')
 			.addText(text => text
 				.setPlaceholder('mm/dd/yyyy')
-				.setValue(this._plugin.settings.format)
+				.setValue(this._plugin.settings.formats[0].format || DEFAULT_SETTINGS.format)
 				.onChange(async value => {
-					this._plugin.settings.format = value;
+					this._plugin.settings.formats[0].format = value;
 					await this._plugin.saveSettings();
 				}));
 
@@ -87,9 +101,9 @@ export class SettingTab extends PluginSettingTab {
 			.setDesc('Another date format to be inserted. If set, display buttons to select a format at the bottom of the calendar. Buttons can be selected by clicking or by “1" or “2" shortcut keys.')
 			.addText(text => text
 				.setPlaceholder('mm/dd/yyyy')
-				.setValue(this._plugin.settings.format2)
+				.setValue(this._plugin.settings.formats[1].format || '')
 				.onChange(async value => {
-					this._plugin.settings.format2 = value;
+					this._plugin.settings.formats[1].format = value;
 					await this._plugin.saveSettings();
 					this.updateStyleSheet();
 				}));
@@ -218,8 +232,8 @@ export class SettingTab extends PluginSettingTab {
 			return;
 		}
 
-		const { format2 } = this._plugin.settings;
-		const formatButtonsHeight = format2 ? '2.5rem' : '0px';
+		const { format } = this._plugin.settings.formats[1];
+		const formatButtonsHeight = format ? '2.5rem' : '0px';
 		createStyles([
 			{ selector: '.modal.date-inserter-modal',  property: 'height', value: `calc(388px + ${formatButtonsHeight})` },
 		]);

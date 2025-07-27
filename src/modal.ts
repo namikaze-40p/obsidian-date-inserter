@@ -49,7 +49,7 @@ export class CalendarModal extends Modal {
 			}
 		});
 
-		if (this._settings.format2) {
+		if (this._settings.formats.filter(({ format}) => format).length > 1) {
 			this.setupFormatButtons(datepicker);
 		}
 	}
@@ -69,14 +69,14 @@ export class CalendarModal extends Modal {
 	private generateOptions(settings: Settings): DatepickerOptions {
 		const { sun, mon, tue, wed, thu, fri, sat } = settings.daysOfWeekHighlighted;
 		const daysOfWeekHighlighted = [sun, mon, tue, wed, thu, fri, sat].filter(val => val !== undefined) as number[];
-		const format = settings.format || DEFAULT_SETTINGS.format;
+		const format = settings.formats[0].format || DEFAULT_SETTINGS.formats[0].format;
 		const options: DatepickerOptions = {
 			language: settings.language,
 			daysOfWeekHighlighted,
 			weekStart: settings.weekStart,
 			todayHighlight: settings.todayHighlight,
 			format,
-			defaultViewDate: this.getStartDate([settings.format, settings.format2]),
+			defaultViewDate: this.getStartDate([...settings.formats.map(({ format }) => format)]),
 		};
 		return options;
 	}
@@ -137,7 +137,7 @@ export class CalendarModal extends Modal {
 	
 	private setupFormatButtons(datepicker: Datepicker): void {
 		this.contentEl.createDiv('format-buttons', el => {
-			const { format, format2 } = this._settings;
+			const [format, format2] = this._settings.formats.map(({ format }) => format);
 			
 			const formatBtn1 = el.createEl('button');
 			formatBtn1.createSpan('').textContent = format || DEFAULT_SETTINGS.format;
