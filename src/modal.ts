@@ -4,7 +4,7 @@ import { Datepicker } from 'vanillajs-datepicker';
 import { DatepickerOptions } from 'vanillajs-datepicker/Datepicker';
 
 import { LOCALES } from './locales';
-import { DEFAULT_SETTINGS, Settings } from './settings.js';
+import { DEFAULT_SETTINGS, FormatDetail, Settings } from './settings.js';
 
 Object.assign(Datepicker.locales, LOCALES);
 
@@ -76,60 +76,60 @@ export class CalendarModal extends Modal {
 			weekStart: settings.weekStart,
 			todayHighlight: settings.todayHighlight,
 			format,
-			defaultViewDate: this.getStartDate([...settings.formats.map(({ format }) => format)]),
+			defaultViewDate: this.getStartDate(settings.formats),
 		};
 		return options;
 	}
 
-	private getStartDate(formats: string[]): number | undefined {
+	private getStartDate(formatDetails: FormatDetail[]): number | undefined {
 		const editor = this._editor;
 		if (!editor) {
 			return;
 		}
 		const selection = editor.getSelection();
 		if (selection) {
-			return this.parseSelection(formats, selection);
+			return formatDetails.map(({ format }) => this.parseSelection(format, selection)).find(date => !!date);
 		} else {
 			const lineNo = editor.getCursor().line;
 			const line = editor.getLine(lineNo);
-			const range = this.calcSelectionRange(formats, line, editor.getCursor().ch);
-			const parsed = this.parseSelection(formats, line.substring(...range));
-			if (parsed) {
-				editor.setSelection({ line: lineNo, ch: range[0] }, { line: lineNo, ch: range[1] });
-			}
-			return parsed;
-		}
-	}
-
-	private parseSelection(formats: string[], selection: string): number | undefined {
-		const locale = this._settings.language || DEFAULT_SETTINGS.language;
-		const items = formats.map(format => ({ format, parsed: Datepicker.parseDate(selection, format, locale) }));
-		return items.find(({ format, parsed }) => parsed && Datepicker.formatDate(parsed, format, locale) === selection)?.parsed;
-	}
-
-	private calcSelectionRange(formats: string[], str: string, cursorPos: number): [number, number] {
-		if (formats.every(format => str.length < format.length)) {
-			return [cursorPos, cursorPos];
-		}
-		const [minPos, maxPos] = this.calcSearchRange(formats, cursorPos);
-		for (let start = minPos; start <= cursorPos; start++) {
-			for (let end = cursorPos; end <= maxPos; end++) {
-				const selection = str.substring(start, end);
-				const parsed = this.parseSelection(formats, selection);
+			for (const formatDetail of formatDetails) {
+				const range = this.calcSelectionRange(formatDetail, line, editor.getCursor().ch);
+				const parsed = this.parseSelection(formatDetail.format, line.substring(...range));
 				if (parsed) {
-					return [start, end];
+					editor.setSelection({ line: lineNo, ch: range[0] }, { line: lineNo, ch: range[1] });
+					return parsed;
 				}
 			}
-			if (cursorPos <= start) {
-				break;
+			return;
+		}
+	}
+
+	private parseSelection(format: string, selection: string): number | undefined {
+		const locale = this._settings.language || DEFAULT_SETTINGS.language;
+		const parsed = Datepicker.parseDate(selection, format, locale);
+		return parsed && Datepicker.formatDate(parsed, format, locale) === selection ? parsed : undefined;
+	}
+
+	private calcSelectionRange(formatDetail: FormatDetail, line: string, cursorPos: number): [number, number] {
+		if (line.length < formatDetail.minLength) {
+			return [cursorPos, cursorPos];
+		}
+		const [minPos, maxPos] = this.calcSearchRange(formatDetail, cursorPos);
+		const searchText = line.slice(minPos, maxPos);
+
+		for (const match of searchText.matchAll(new RegExp(formatDetail.regex, 'g'))) {
+			const matchStartPos = minPos + (match.index || 0);
+			const matchEndPos = minPos + (match.index || 0) + match[0].length;
+			if (matchStartPos <= cursorPos && cursorPos <= matchEndPos) {
+				return [matchStartPos, matchEndPos];
 			}
 		}
+
 		return [cursorPos, cursorPos];
 	}
 
-	private calcSearchRange(formats: string[], cursorPos: number): [number, number] {
-		const { days, months } = LOCALES[this._settings.language] || DEFAULT_SETTINGS.language;
-		const maxLength = Math.max(...formats.map(format => format.length)) + Math.max(...days.map(day => day.length)) + Math.max(...months.map(month => month.length));
+	private calcSearchRange(formatDetail: FormatDetail, cursorPos: number): [number, number] {
+		const maxLength = formatDetail.maxLength;
 		const min = Math.max(0, cursorPos - maxLength);
 		const max = maxLength + cursorPos;
 		return [min, max];

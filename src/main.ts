@@ -51,20 +51,21 @@ export default class DateInserter extends Plugin {
 		const formats = [
 			{
 				format: this.settings.format || DEFAULT_SETTINGS.formats[0].format,
-				hasNameOfWeek: false,
-				hasNameOfMonth: false,
-				regexes: [],
+				regex: '',
+				minLength: 0,
+				maxLength: 0,
 			},
 			{
 				format: this.settings.format2 || '',
-				hasNameOfWeek: false,
-				hasNameOfMonth: false,
-				regexes: [],
+				regex: '',
+				minLength: 0,
+				maxLength: 0,
 			},
 		];
 		this.settings.formats = formats;
 		delete (this.settings as Partial<Settings>).format;
 		delete (this.settings as Partial<Settings>).format2;
 		await this.saveSettings();
+		await this._settingTab.updateFormats();
 	}
 }
