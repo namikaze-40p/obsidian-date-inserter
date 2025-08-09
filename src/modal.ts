@@ -4,7 +4,7 @@ import { Datepicker } from 'vanillajs-datepicker';
 import { DatepickerOptions } from 'vanillajs-datepicker/Datepicker';
 
 import { LOCALES } from './locales';
-import { DEFAULT_SETTINGS, FormatDetail, Settings } from './settings.js';
+import { DEFAULT_SETTINGS, DateFormatSpec, Settings } from './settings.js';
 
 Object.assign(Datepicker.locales, LOCALES);
 
@@ -49,7 +49,7 @@ export class CalendarModal extends Modal {
 			}
 		});
 
-		if (this._settings.formats.filter(({ format}) => format).length > 1) {
+		if (this._settings.dateFormatSpecs.filter(({ format }) => format).length > 1) {
 			this.setupFormatButtons(datepicker);
 		}
 	}
@@ -69,32 +69,32 @@ export class CalendarModal extends Modal {
 	private generateOptions(settings: Settings): DatepickerOptions {
 		const { sun, mon, tue, wed, thu, fri, sat } = settings.daysOfWeekHighlighted;
 		const daysOfWeekHighlighted = [sun, mon, tue, wed, thu, fri, sat].filter(val => val !== undefined) as number[];
-		const format = settings.formats[0].format || DEFAULT_SETTINGS.formats[0].format;
+		const format = settings.dateFormatSpecs[0].format || DEFAULT_SETTINGS.dateFormatSpecs[0].format;
 		const options: DatepickerOptions = {
 			language: settings.language,
 			daysOfWeekHighlighted,
 			weekStart: settings.weekStart,
 			todayHighlight: settings.todayHighlight,
 			format,
-			defaultViewDate: this.getStartDate(settings.formats),
+			defaultViewDate: this.getStartDate(settings.dateFormatSpecs),
 		};
 		return options;
 	}
 
-	private getStartDate(formatDetails: FormatDetail[]): number | undefined {
+	private getStartDate(dateFormatSpecs: DateFormatSpec[]): number | undefined {
 		const editor = this._editor;
 		if (!editor) {
 			return;
 		}
 		const selection = editor.getSelection();
 		if (selection) {
-			return formatDetails.map(({ format }) => this.parseSelection(format, selection)).find(date => !!date);
+			return dateFormatSpecs.map(({ format }) => this.parseSelection(format, selection)).find(date => !!date);
 		} else {
 			const lineNo = editor.getCursor().line;
 			const line = editor.getLine(lineNo);
-			for (const formatDetail of formatDetails) {
-				const range = this.calcSelectionRange(formatDetail, line, editor.getCursor().ch);
-				const parsed = this.parseSelection(formatDetail.format, line.substring(...range));
+			for (const dateFormatSpec of dateFormatSpecs) {
+				const range = this.calcSelectionRange(dateFormatSpec, line, editor.getCursor().ch);
+				const parsed = this.parseSelection(dateFormatSpec.format, line.substring(...range));
 				if (parsed) {
 					editor.setSelection({ line: lineNo, ch: range[0] }, { line: lineNo, ch: range[1] });
 					return parsed;
@@ -110,14 +110,14 @@ export class CalendarModal extends Modal {
 		return parsed && Datepicker.formatDate(parsed, format, locale) === selection ? parsed : undefined;
 	}
 
-	private calcSelectionRange(formatDetail: FormatDetail, line: string, cursorPos: number): [number, number] {
-		if (line.length < formatDetail.minLength) {
+	private calcSelectionRange(dateFormatSpec: DateFormatSpec, line: string, cursorPos: number): [number, number] {
+		if (line.length < dateFormatSpec.minLength) {
 			return [cursorPos, cursorPos];
 		}
-		const [minPos, maxPos] = this.calcSearchRange(formatDetail, cursorPos);
+		const [minPos, maxPos] = this.calcSearchRange(dateFormatSpec, cursorPos);
 		const searchText = line.slice(minPos, maxPos);
 
-		for (const match of searchText.matchAll(new RegExp(formatDetail.regex, 'g'))) {
+		for (const match of searchText.matchAll(new RegExp(dateFormatSpec.regex, 'g'))) {
 			const matchStartPos = minPos + (match.index || 0);
 			const matchEndPos = minPos + (match.index || 0) + match[0].length;
 			if (matchStartPos <= cursorPos && cursorPos <= matchEndPos) {
@@ -128,8 +128,8 @@ export class CalendarModal extends Modal {
 		return [cursorPos, cursorPos];
 	}
 
-	private calcSearchRange(formatDetail: FormatDetail, cursorPos: number): [number, number] {
-		const maxLength = formatDetail.maxLength;
+	private calcSearchRange(dateFormatSpec: DateFormatSpec, cursorPos: number): [number, number] {
+		const maxLength = dateFormatSpec.maxLength;
 		const min = Math.max(0, cursorPos - maxLength);
 		const max = maxLength + cursorPos;
 		return [min, max];
@@ -137,7 +137,7 @@ export class CalendarModal extends Modal {
 	
 	private setupFormatButtons(datepicker: Datepicker): void {
 		this.contentEl.createDiv('format-buttons', el => {
-			const [format, format2] = this._settings.formats.map(({ format }) => format);
+			const [format, format2] = this._settings.dateFormatSpecs.map(({ format }) => format);
 			
 			const formatBtn1 = el.createEl('button');
 			formatBtn1.createSpan('').textContent = format || DEFAULT_SETTINGS.format;

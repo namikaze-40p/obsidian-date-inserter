@@ -45,12 +45,12 @@ export default class DateInserter extends Plugin {
 	}
 
 	private async migrateSettingValues(): Promise<void> {
-		if (this.settings.formats?.length > 1) {
+		if (this.settings.dateFormatSpecs?.length > 1) {
 			return;
 		}
-		const formats = [
+		const dateFormatSpecs = [
 			{
-				format: this.settings.format || DEFAULT_SETTINGS.formats[0].format,
+				format: this.settings.format || DEFAULT_SETTINGS.dateFormatSpecs[0].format,
 				regex: '',
 				minLength: 0,
 				maxLength: 0,
@@ -62,10 +62,10 @@ export default class DateInserter extends Plugin {
 				maxLength: 0,
 			},
 		];
-		this.settings.formats = formats;
+		this.settings.dateFormatSpecs = dateFormatSpecs;
 		delete (this.settings as Partial<Settings>).format;
 		delete (this.settings as Partial<Settings>).format2;
 		await this.saveSettings();
-		await this._settingTab.updateFormats();
+		await this._settingTab.updateDateFormatSpecs();
 	}
 }

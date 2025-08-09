@@ -4,14 +4,14 @@ import DateInserter from './main.js';
 import { LANGUAGES, LOCALES } from './locales.js';
 import { createStyles, deleteStyles } from './util.js';
 
-export type FormatDetail = {
+export type DateFormatSpec = {
 	format: string;
 	regex: string;
 	minLength: number;
 	maxLength: number;
 }
 export interface Settings {
-	formats: FormatDetail[];
+	dateFormatSpecs: DateFormatSpec[];
 	format: string;
 	format2: string;
 	language: string;
@@ -29,7 +29,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-	formats: [
+	dateFormatSpecs: [
 		{
 			format: 'mm/dd/yyyy',
 			regex: '(?:0[1-9]|1[0-2])/(?:0[1-9]|[12][0-9]|3[01])/(?:\\d{4})',
@@ -78,9 +78,9 @@ export class SettingTab extends PluginSettingTab {
 			.setDesc('Date format to be inserted.')
 			.addText(text => text
 				.setPlaceholder('mm/dd/yyyy')
-				.setValue(this._plugin.settings.formats[0].format || DEFAULT_SETTINGS.format)
-				.onChange(async value => this._plugin.settings.formats[0].format = value)
-				.inputEl.onblur = async () => await this.updateFormats()
+				.setValue(this._plugin.settings.dateFormatSpecs[0].format || DEFAULT_SETTINGS.dateFormatSpecs[0].format)
+				.onChange(async value => this._plugin.settings.dateFormatSpecs[0].format = value)
+				.inputEl.onblur = async () => await this.updateDateFormatSpecs()
 			);
 
 		containerEl.createDiv('setting-date-format-description', el => {
@@ -101,11 +101,11 @@ export class SettingTab extends PluginSettingTab {
 			.setDesc('Another date format to be inserted. If set, display buttons to select a format at the bottom of the calendar. Buttons can be selected by clicking or by “1" or “2" shortcut keys.')
 			.addText(text => text
 				.setPlaceholder('mm/dd/yyyy')
-				.setValue(this._plugin.settings.formats[1].format || '')
-				.onChange(async value => this._plugin.settings.formats[1].format = value)
+				.setValue(this._plugin.settings.dateFormatSpecs[1].format || '')
+				.onChange(async value => this._plugin.settings.dateFormatSpecs[1].format = value)
 				.inputEl.onblur = async () => {
 					this.updateStyleSheet();
-					await this.updateFormats();
+					await this.updateDateFormatSpecs();
 				}
 			);
 
@@ -117,7 +117,7 @@ export class SettingTab extends PluginSettingTab {
 				.setValue(this._plugin.settings.language)
 				.onChange(async value => {
 					this._plugin.settings.language = value;
-					await this.updateFormats();
+					await this.updateDateFormatSpecs();
 				}));
 				
 		new Setting(containerEl)
@@ -233,20 +233,20 @@ export class SettingTab extends PluginSettingTab {
 			return;
 		}
 
-		const { format } = this._plugin.settings.formats[1];
+		const { format } = this._plugin.settings.dateFormatSpecs[1];
 		const formatButtonsHeight = format ? '2.5rem' : '0px';
 		createStyles([
 			{ selector: '.modal.date-inserter-modal',  property: 'height', value: `calc(388px + ${formatButtonsHeight})` },
 		]);
 	}
 
-	async updateFormats(): Promise<void> {
-		this._plugin.settings.formats[0] = this.generateFormatDetail(this._plugin.settings.formats[0].format);
-		this._plugin.settings.formats[1] = this.generateFormatDetail(this._plugin.settings.formats[1].format);
+	async updateDateFormatSpecs(): Promise<void> {
+		this._plugin.settings.dateFormatSpecs[0] = this.generateDateFormatSpec(this._plugin.settings.dateFormatSpecs[0].format);
+		this._plugin.settings.dateFormatSpecs[1] = this.generateDateFormatSpec(this._plugin.settings.dateFormatSpecs[1].format);
 		await this._plugin.saveSettings();
 	}
 
-	private generateFormatDetail(format: string): FormatDetail {
+	private generateDateFormatSpec(format: string): DateFormatSpec {
 		const formatTokens = this.generateTokens(format);
 		const { regex, min: minLength, max: maxLength } = this.generateRegex(format, formatTokens);
 		return { format, regex, minLength, maxLength };
