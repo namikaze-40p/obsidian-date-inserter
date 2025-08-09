@@ -87,44 +87,42 @@ export class CalendarModal extends Modal {
 			return;
 		}
 		const selection = editor.getSelection();
-		if (selection) {
-			return isDefaultToday ? undefined : dateFormatSpecs.map(({ format }) => this.parseSelection(format, selection)).find(date => !!date);
-		} else {
-			const lineNo = editor.getCursor().line;
-			const line = editor.getLine(lineNo);
-			for (const dateFormatSpec of dateFormatSpecs) {
-				const range = this.calcSelectionRange(dateFormatSpec, line, editor.getCursor().ch);
-				const parsed = this.parseSelection(dateFormatSpec.format, line.substring(...range));
-				if (parsed) {
+		const { line: lineNo, ch } = editor.getCursor();
+		const text = selection || editor.getLine(lineNo);
+		for (const dateFormatSpec of dateFormatSpecs) {
+			const range = this.calcParseRange(dateFormatSpec, text, ch, !!selection);
+			const parsed = this.parseSelection(dateFormatSpec.format, text.substring(...range));
+			if (parsed) {
+				if (!selection) {
 					editor.setSelection({ line: lineNo, ch: range[0] }, { line: lineNo, ch: range[1] });
-					return isDefaultToday ? undefined : parsed;
 				}
+				return isDefaultToday ? undefined : parsed;
 			}
 		}
+	}
+
+	private calcParseRange(dateFormatSpec: DateFormatSpec, text: string, cursorPos: number, isSelection = false): [number, number] {
+		if (text.length < dateFormatSpec.minLength) {
+			return [cursorPos, cursorPos];
+		}
+		const [minPos, maxPos] = isSelection ? [0, text.length] : this.calcSearchRange(dateFormatSpec, cursorPos);
+		const searchText = text.slice(minPos, maxPos);
+
+		for (const match of searchText.matchAll(new RegExp(dateFormatSpec.regex, 'g'))) {
+			const matchStartPos = minPos + (match.index || 0);
+			const matchEndPos = minPos + (match.index || 0) + match[0].length;
+			if (isSelection || (matchStartPos <= cursorPos && cursorPos <= matchEndPos)) {
+				return [matchStartPos, matchEndPos];
+			}
+		}
+
+		return [cursorPos, cursorPos];
 	}
 
 	private parseSelection(format: string, selection: string): number | undefined {
 		const locale = this._settings.language || DEFAULT_SETTINGS.language;
 		const parsed = Datepicker.parseDate(selection, format, locale);
 		return parsed && Datepicker.formatDate(parsed, format, locale) === selection ? parsed : undefined;
-	}
-
-	private calcSelectionRange(dateFormatSpec: DateFormatSpec, line: string, cursorPos: number): [number, number] {
-		if (line.length < dateFormatSpec.minLength) {
-			return [cursorPos, cursorPos];
-		}
-		const [minPos, maxPos] = this.calcSearchRange(dateFormatSpec, cursorPos);
-		const searchText = line.slice(minPos, maxPos);
-
-		for (const match of searchText.matchAll(new RegExp(dateFormatSpec.regex, 'g'))) {
-			const matchStartPos = minPos + (match.index || 0);
-			const matchEndPos = minPos + (match.index || 0) + match[0].length;
-			if (matchStartPos <= cursorPos && cursorPos <= matchEndPos) {
-				return [matchStartPos, matchEndPos];
-			}
-		}
-
-		return [cursorPos, cursorPos];
 	}
 
 	private calcSearchRange(dateFormatSpec: DateFormatSpec, cursorPos: number): [number, number] {
