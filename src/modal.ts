@@ -76,19 +76,19 @@ export class CalendarModal extends Modal {
 			weekStart: settings.weekStart,
 			todayHighlight: settings.todayHighlight,
 			format,
-			defaultViewDate: this.getStartDate(settings.dateFormatSpecs),
+			defaultViewDate: this.getStartDate(settings.dateFormatSpecs, settings.defaultDate === 'today'),
 		};
 		return options;
 	}
 
-	private getStartDate(dateFormatSpecs: DateFormatSpec[]): number | undefined {
+	private getStartDate(dateFormatSpecs: DateFormatSpec[], isDefaultToday: boolean): number | undefined {
 		const editor = this._editor;
 		if (!editor) {
 			return;
 		}
 		const selection = editor.getSelection();
 		if (selection) {
-			return dateFormatSpecs.map(({ format }) => this.parseSelection(format, selection)).find(date => !!date);
+			return isDefaultToday ? undefined : dateFormatSpecs.map(({ format }) => this.parseSelection(format, selection)).find(date => !!date);
 		} else {
 			const lineNo = editor.getCursor().line;
 			const line = editor.getLine(lineNo);
@@ -97,10 +97,9 @@ export class CalendarModal extends Modal {
 				const parsed = this.parseSelection(dateFormatSpec.format, line.substring(...range));
 				if (parsed) {
 					editor.setSelection({ line: lineNo, ch: range[0] }, { line: lineNo, ch: range[1] });
-					return parsed;
+					return isDefaultToday ? undefined : parsed;
 				}
 			}
-			return;
 		}
 	}
 

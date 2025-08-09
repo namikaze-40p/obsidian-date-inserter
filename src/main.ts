@@ -63,6 +63,7 @@ export default class DateInserter extends Plugin {
 			},
 		];
 		this.settings.dateFormatSpecs = dateFormatSpecs;
+		this.settings.defaultDate = DEFAULT_SETTINGS.defaultDate;
 		delete (this.settings as Partial<Settings>).format;
 		delete (this.settings as Partial<Settings>).format2;
 		await this.saveSettings();

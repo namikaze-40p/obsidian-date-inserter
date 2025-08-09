@@ -10,8 +10,12 @@ export type DateFormatSpec = {
 	minLength: number;
 	maxLength: number;
 }
+
+export const DEFAULT_DATE_OPTIONS = { today: 'Today', selectedDate: 'Selected date' } as const;
+
 export interface Settings {
 	dateFormatSpecs: DateFormatSpec[];
+	defaultDate: string;
 	format: string;
 	format2: string;
 	language: string;
@@ -37,6 +41,7 @@ export const DEFAULT_SETTINGS: Settings = {
 			maxLength: 10,
 		},
 	],
+	defaultDate: 'today',
 	format: 'mm/dd/yyyy',
 	format2: '',
 	language: 'en',
@@ -109,6 +114,18 @@ export class SettingTab extends PluginSettingTab {
 				}
 			);
 
+		new Setting(containerEl)
+			.setName('Default date on calendar open')
+			.setDesc('Choose which date is selected when opening the calendar.')
+			.addDropdown(dropdown => dropdown
+				.addOptions(DEFAULT_DATE_OPTIONS)
+				.setValue(this._plugin.settings.defaultDate || 'today')
+				.onChange(async value => {
+					console.log(value);
+					this._plugin.settings.defaultDate = value;
+					await this._plugin.saveSettings();
+				}));
+				
 		new Setting(containerEl)
 			.setName('Language')
 			.setDesc('Set calendar and date-related languages.')
