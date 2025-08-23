@@ -121,7 +121,6 @@ export class SettingTab extends PluginSettingTab {
 				.addOptions(DEFAULT_DATE_OPTIONS)
 				.setValue(this._plugin.settings.defaultDate || 'today')
 				.onChange(async value => {
-					console.log(value);
 					this._plugin.settings.defaultDate = value;
 					await this._plugin.saveSettings();
 				}));
