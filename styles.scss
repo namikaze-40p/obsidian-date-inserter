@@ -1,168 +1,169 @@
 @import './node_modules/vanillajs-datepicker/sass/datepicker';
 
 .modal.date-inserter-modal {
-    width: 340px;
+  width: 340px;
 
-    .datepicker-view {
-        color: #000;
+  .datepicker-view {
+    color: #000;
+  }
+
+  .modal-content {
+    height: 305px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .invisible-input {
+    opacity: 0;
+    pointer-events: none;
+    height: 30px;
+  }
+
+  .datepicker {
+    left: initial !important;
+    top: 30px !important;
+
+    .datepicker-picker {
+      position: relative;
+      border: 0;
+
+      .datepicker-header {
+        display: block;
+      }
     }
+  }
 
-    .modal-content {
-        height: 305px;
-		display: flex;
-		flex-direction: column;
-	    align-items: center;
-		justify-content: space-between;
+  .format-buttons {
+    width: 100%;
+
+    & button {
+      width: 50%;
+      height: 2rem !important;
+      padding: 0 0.5rem;
+
+      &:first-child {
+        border-radius: 4px 0 0 4px;
+      }
+
+      &:last-child {
+        border-radius: 0 4px 4px 0;
+      }
+
+      &.selected {
+        background-color: hsl(171, 100%, 41%);
+        color: #fff;
+      }
+
+      & span {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
     }
-
-    .invisible-input {
-		opacity: 0;
-        pointer-events: none;
-        height: 30px;
-	}
-
-	.datepicker {
-		left: initial !important;
-		top: 30px !important;
-
-		.datepicker-picker {
-			position: relative;
-			border: 0;
-		
-			.datepicker-header {
-				display: block;
-			}
-		}
-	}
-
-	.format-buttons {
-		width: 100%;
-
-		& button {
-			width: 50%;
-			height: 2rem !important;
-			padding: 0 0.5rem;
-
-			&:first-child {
-				border-radius: 4px 0 0 4px;
-			}
-
-			&:last-child {
-				border-radius: 0 4px 4px 0;
-			}
-
-			&.selected {
-				background-color: hsl(171, 100%, 41%);
-				color: #fff;
-			}
-
-			& span {
-				text-overflow: ellipsis;
-				overflow: hidden;
-				white-space: nowrap;	
-			}
-		}
-	}
+  }
 }
 
 .is-mobile .modal.date-inserter-modal {
-	.datepicker {
-		width: 303px;
-		
-		.days {
-			.dow {
-				width: 42.75px;;
-				height: 28.5px;
-			}
-			.day {
-				width: 42.75px;;
-				height: 42.75px;
-			}
-		}
-	}
+  .datepicker {
+    width: 303px;
+
+    .days {
+      .dow {
+        width: 42.75px;
+        height: 28.5px;
+      }
+      .day {
+        width: 42.75px;
+        height: 42.75px;
+      }
+    }
+  }
 }
 
 .is-phone .modal.date-inserter-modal {
-	.datepicker {
-		top: 0 !important;
-	}
+  .datepicker {
+    top: 0 !important;
+  }
 }
 
-
 .setting-date-format-description {
-	padding: 0 0 1rem 0.5rem;
-	color: var(--text-muted);
-	font-size: var(--font-ui-smaller);
-	line-height: var(--line-height-tight);
+  padding: 0 0 1rem 0.5rem;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  line-height: var(--line-height-tight);
 
-	.format-details {
-		margin-top: 0.5rem;
-	}
-	a {
-		margin-left: 0.5rem;
-	}	
+  .format-details {
+    margin-top: 0.5rem;
+  }
+  a {
+    margin-left: 0.5rem;
+  }
 }
 
 .setting-day-of-week {
-	padding-left: 0.5rem;
+  padding-left: 0.5rem;
 }
 
 // Color Scheme for dark
 body.theme-dark .modal.date-inserter-modal {
-	.datepicker-picker {
-		background-color: var(--color-base-25) !important;
-	}
+  .datepicker-picker {
+    background-color: var(--color-base-25) !important;
+  }
 
-	.datepicker-dropdown .datepicker-picker {
-		box-shadow: 0 2px 3px var(--color-base-40), 0 0 0 1px var(--color-base-40) !important;
-	}
+  .datepicker-dropdown .datepicker-picker {
+    box-shadow:
+      0 2px 3px var(--color-base-40),
+      0 0 0 1px var(--color-base-40) !important;
+  }
 
-	.datepicker-controls .button {
-		background-color: var(--color-base-25) !important;
-		color: var(--text-normal) !important;
-	}
+  .datepicker-controls .button {
+    background-color: var(--color-base-25) !important;
+    color: var(--text-normal) !important;
+  }
 
-	.datepicker-header .datepicker-controls .button {
-		border-color: transparent !important;
-	}
+  .datepicker-header .datepicker-controls .button {
+    border-color: transparent !important;
+  }
 
-	.datepicker-header .datepicker-controls .button:hover {
-		background-color: var(--color-base-40) !important;
-	}
+  .datepicker-header .datepicker-controls .button:hover {
+    background-color: var(--color-base-40) !important;
+  }
 
-	.datepicker-header .datepicker-controls .button:active {
-		background-color: var(--color-base-40) !important;
-	}
+  .datepicker-header .datepicker-controls .button:active {
+    background-color: var(--color-base-40) !important;
+  }
 
-	.datepicker span {
-		color: var(--text-normal) !important;
-	}
+  .datepicker span {
+    color: var(--text-normal) !important;
+  }
 
-	.datepicker-cell:not(.disabled):hover {
-		background-color: var(--color-base-30) !important;
-	}
+  .datepicker-cell:not(.disabled):hover {
+    background-color: var(--color-base-30) !important;
+  }
 
-	.datepicker-cell.focused:not(.selected) {
-		background-color: var(--color-base-40) !important;
-	}
+  .datepicker-cell.focused:not(.selected) {
+    background-color: var(--color-base-40) !important;
+  }
 
-	.datepicker-cell.highlighted:not(.selected):not(.range):not(.today) {
-		background-color: var(--color-base-30) !important;
-	}
+  .datepicker-cell.highlighted:not(.selected):not(.range):not(.today) {
+    background-color: var(--color-base-30) !important;
+  }
 
-	.datepicker-cell.highlighted:not(.selected):not(.range):not(.today):not(.disabled):hover {
-		background-color: var(--color-base-40) !important;
-	}
+  .datepicker-cell.highlighted:not(.selected):not(.range):not(.today):not(.disabled):hover {
+    background-color: var(--color-base-40) !important;
+  }
 
-	.datepicker-cell.highlighted:not(.selected):not(.range):not(.today).focused {
-		background-color: var(--color-base-40) !important;
-	}
+  .datepicker-cell.highlighted:not(.selected):not(.range):not(.today).focused {
+    background-color: var(--color-base-40) !important;
+  }
 
-	.datepicker-cell.today:not(.selected) {
-		background-color: hsl(171, 100%, 30%) !important;
-	}
+  .datepicker-cell.today:not(.selected) {
+    background-color: hsl(171, 100%, 30%) !important;
+  }
 
-	.format-buttons button.selected {
-		background-color: hsl(171, 100%, 30%);
-	}
+  .format-buttons button.selected {
+    background-color: hsl(171, 100%, 30%);
+  }
 }
