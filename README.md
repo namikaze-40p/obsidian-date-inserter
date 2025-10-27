@@ -1,6 +1,6 @@
-# Obsidian Date Inserter
+# Date Inserter
 
-This is an [Obsidian](https://obsidian.md/) plugin which can insert a date at the cursor position using a calendar.
+An [Obsidian](https://obsidian.md/) plugin that lets you insert a date at the cursor position using a calendar.
 
 ## How to use
 
