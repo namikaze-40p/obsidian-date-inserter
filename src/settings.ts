@@ -2,7 +2,6 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 
 import DateInserter from './main.js';
 import { LANGUAGES, LOCALES } from './locales.js';
-import { createStyles, deleteStyles } from './util.js';
 
 export type DateFormatSpec = {
   format: string;
@@ -121,10 +120,7 @@ export class SettingTab extends PluginSettingTab {
             .setValue(this._plugin.settings.dateFormatSpecs[1].format || '')
             .onChange(
               async (value) => (this._plugin.settings.dateFormatSpecs[1].format = value),
-            ).inputEl.onblur = async () => {
-            this.updateStyleSheet();
-            await this.updateDateFormatSpecs();
-          }),
+            ).inputEl.onblur = async () => await this.updateDateFormatSpecs()),
       );
 
     new Setting(containerEl)
@@ -252,23 +248,6 @@ export class SettingTab extends PluginSettingTab {
           }),
       );
     });
-  }
-
-  updateStyleSheet(isTeardown = false): void {
-    deleteStyles();
-    if (isTeardown) {
-      return;
-    }
-
-    const { format } = this._plugin.settings.dateFormatSpecs[1];
-    const formatButtonsHeight = format ? '2.5rem' : '0px';
-    createStyles([
-      {
-        selector: '.modal.date-inserter-modal',
-        property: 'height',
-        value: `calc(388px + ${formatButtonsHeight})`,
-      },
-    ]);
   }
 
   async updateDateFormatSpecs(): Promise<void> {

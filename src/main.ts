@@ -28,11 +28,6 @@ export default class DateInserter extends Plugin {
 
     this._settingTab = new SettingTab(this.app, this);
     this.addSettingTab(this._settingTab);
-    this._settingTab.updateStyleSheet();
-  }
-
-  onunload(): void {
-    this._settingTab.updateStyleSheet(true);
   }
 
   async loadSettings(): Promise<void> {

@@ -1,6 +1,11 @@
 @import './node_modules/vanillajs-datepicker/sass/datepicker';
 
+:root {
+  --date-inserter-modal-height: 388px;
+}
+
 .modal.date-inserter-modal {
+  height: var(--date-inserter-modal-height);
   width: 340px;
 
   .datepicker-view {

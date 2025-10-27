@@ -18,6 +18,11 @@ export class CalendarModal extends Modal {
     private _editor?: Editor,
   ) {
     super(app);
+
+    const { format } = _settings.dateFormatSpecs[1];
+    if (format) {
+      this.modalEl.style.setProperty('--date-inserter-modal-height', 'calc(388px + 2.5rem)');
+    }
   }
 
   onOpen(): void {
@@ -63,6 +68,7 @@ export class CalendarModal extends Modal {
   onClose(): void {
     this._isClosed = true;
     this.contentEl.empty();
+    this.modalEl.style.removeProperty('--date-inserter-modal-height');
   }
 
   private insertDateToCursorPosition(date: string, editor: Editor): void {
