@@ -1,23 +1,41 @@
 @import './node_modules/vanillajs-datepicker/sass/datepicker';
 
-:root {
-  --date-inserter-modal-height: 388px;
-}
-
 .modal.date-inserter-modal {
-  height: var(--date-inserter-modal-height);
-  width: 340px;
+  height: max-content;
+  width: max-content;
+  padding: 16px;
+
+  &:has(.format-buttons) {
+    padding-bottom: 16px;
+  }
+
+  .modal-header {
+    display: none;
+  }
+
+  .modal-close-button {
+    display: none;
+  }
 
   .datepicker-view {
     color: #000;
   }
 
+  .datepicker-dropdown {
+    padding: 0;
+  }
+
   .modal-content {
-    height: 305px;
+    height: 284px;
+    min-width: 256px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+
+    &:has(.format-buttons) {
+      height: calc(284px + 16px + 2rem);
+    }
   }
 
   .invisible-input {
@@ -28,7 +46,7 @@
 
   .datepicker {
     left: initial !important;
-    top: 30px !important;
+    top: initial !important;
 
     .datepicker-picker {
       position: relative;
@@ -71,6 +89,16 @@
 }
 
 .is-mobile .modal.date-inserter-modal {
+  .modal-content {
+    min-height: 330px;
+    min-width: 306px;
+    padding: 0;
+
+    &:has(.format-buttons) {
+      height: calc(330px + 2.5rem);
+    }
+  }
+
   .datepicker {
     width: 303px;
 
@@ -89,7 +117,7 @@
 
 .is-phone .modal.date-inserter-modal {
   .datepicker {
-    top: 0 !important;
+    top: 1px !important;
   }
 }
 
