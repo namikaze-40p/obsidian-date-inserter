@@ -44,15 +44,10 @@
   .datepicker {
     left: initial !important;
     top: initial !important;
-    position: static;
+    position: relative;
 
     .datepicker-picker {
       position: relative;
-      border: 0;
-
-      .datepicker-header {
-        display: block;
-      }
     }
   }
 
@@ -105,6 +100,7 @@
 
   .datepicker {
     width: 303px;
+    top: 16px !important;
 
     .days {
       .dow {
@@ -120,12 +116,6 @@
 
   .format-buttons {
     height: initial;
-  }
-}
-
-.is-phone .modal.date-inserter-modal {
-  .datepicker {
-    top: 17px !important;
   }
 }
 
