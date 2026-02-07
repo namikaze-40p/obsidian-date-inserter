@@ -9,14 +9,6 @@
     padding-bottom: 16px;
   }
 
-  .modal-header {
-    display: none;
-  }
-
-  .modal-close-button {
-    display: none;
-  }
-
   .datepicker-view {
     color: #000;
   }
@@ -90,12 +82,13 @@
 
 .is-mobile .modal.date-inserter-modal {
   .modal-content {
-    min-height: 330px;
+    min-height: 340px;
     min-width: 306px;
+    margin-top: 0.75rem;
     padding: 0;
 
     &:has(.format-buttons) {
-      height: calc(330px + 2.5rem);
+      height: calc(340px + 2.5rem + 16px);
     }
   }
 
