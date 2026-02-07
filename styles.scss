@@ -119,6 +119,12 @@
   }
 }
 
+.is-phone .modal.date-inserter-modal {
+  .datepicker {
+    top: 1px !important;
+  }
+}
+
 .setting-date-format-description {
   padding: 0 0 1rem 0.5rem;
   color: var(--text-muted);
