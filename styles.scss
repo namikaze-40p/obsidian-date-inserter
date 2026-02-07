@@ -17,6 +17,10 @@
     padding: 0;
   }
 
+  .modal-header {
+    display: none;
+  }
+
   .modal-content {
     height: 284px;
     min-width: 256px;
@@ -26,7 +30,7 @@
     justify-content: space-between;
 
     &:has(.format-buttons) {
-      height: calc(284px + 16px + 2rem);
+      height: calc(284px + 12px + 2rem);
     }
   }
 
@@ -34,11 +38,13 @@
     opacity: 0;
     pointer-events: none;
     height: 30px;
+    position: absolute;
   }
 
   .datepicker {
     left: initial !important;
     top: initial !important;
+    position: static;
 
     .datepicker-picker {
       position: relative;
@@ -52,6 +58,7 @@
 
   .format-buttons {
     width: 100%;
+    height: 2rem;
 
     & button {
       width: 50%;
@@ -81,6 +88,10 @@
 }
 
 .is-mobile .modal.date-inserter-modal {
+  .modal-header {
+    display: initial;
+  }
+
   .modal-content {
     min-height: 340px;
     min-width: 306px;
@@ -105,6 +116,10 @@
         height: 42.75px;
       }
     }
+  }
+
+  .format-buttons {
+    height: initial;
   }
 }
 
