@@ -17,6 +17,10 @@
     padding: 0;
   }
 
+  .modal-close-button {
+    display: none;
+  }
+
   .modal-header {
     display: none;
   }
@@ -34,14 +38,14 @@
   .invisible-input {
     opacity: 0;
     pointer-events: none;
-    height: 30px;
-    position: absolute;
+    height: 284px;
+    position: relative;
   }
 
   .datepicker {
-    left: initial !important;
-    top: initial !important;
-    position: relative;
+    left: 0 !important;
+    top: 0 !important;
+    position: absolute;
 
     .datepicker-picker {
       position: relative;
@@ -53,7 +57,7 @@
     height: 2rem;
     position: sticky;
     bottom: 0px;
-    padding-top: 16px;
+    margin-top: 16px;
 
     & button {
       width: 50%;
@@ -83,6 +87,10 @@
 }
 
 .is-mobile .modal.date-inserter-modal {
+  .modal-close-button {
+    display: flex;
+  }
+
   .modal-header {
     display: initial;
   }
@@ -99,14 +107,12 @@
 
     .invisible-input {
       height: 340px;
-      position: relative;
     }
   }
 
   .datepicker {
     width: 303px;
     top: 16px !important;
-    position: absolute;
 
     .days {
       .dow {
