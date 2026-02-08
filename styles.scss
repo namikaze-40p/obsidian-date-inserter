@@ -26,19 +26,18 @@
   }
 
   .modal-content {
-    min-height: 324px;
+    min-height: 340px;
     min-width: 303px;
     position: relative;
 
     &:has(.format-buttons) {
-      height: calc(324px + 2rem + 16px);
+      height: calc(340px + 2rem + 16px);
     }
   }
 
   .invisible-input {
     opacity: 0;
     pointer-events: none;
-    height: 284px;
     height: 340px;
     position: relative;
   }
@@ -52,6 +51,10 @@
 
     .datepicker-picker {
       position: relative;
+    }
+
+    .datepicker-controls > button {
+      height: 42.75px;
     }
 
     .days {
@@ -111,9 +114,10 @@
     min-height: 327px;
     margin-top: 0.75rem;
     padding: 0;
+    top: 16px;
 
     &:has(.format-buttons) {
-      height: calc(327px + 2rem + 16px);
+      height: calc(327px + 2rem + 16px + 16px);
     }
 
     .invisible-input {
@@ -131,7 +135,13 @@
   .modal-content {
     min-width: 305px;
     min-height: 329px;
+    top: 0px;
+
+    &:has(.format-buttons) {
+      height: calc(327px + 2rem + 16px);
+    }
   }
+
   .datepicker {
     width: 303px;
     top: 1px !important;
