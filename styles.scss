@@ -45,7 +45,8 @@
   .datepicker {
     left: 0 !important;
     top: 0 !important;
-    position: absolute;
+    margin-top: -284px;
+    position: relative;
 
     .datepicker-picker {
       position: relative;
@@ -97,7 +98,7 @@
 
   .modal-content {
     min-height: 340px;
-    min-width: 306px;
+    min-width: 303px;
     margin-top: 0.75rem;
     padding: 0;
 
@@ -113,6 +114,8 @@
   .datepicker {
     width: 303px;
     top: 16px !important;
+    margin-top: 0px;
+    position: absolute;
 
     .days {
       .dow {
@@ -132,6 +135,9 @@
 }
 
 .is-phone .modal.date-inserter-modal {
+  .modal-content {
+    min-width: 305px;
+  }
   .datepicker {
     top: 1px !important;
     left: 1px !important;
