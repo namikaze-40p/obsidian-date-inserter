@@ -17,43 +17,62 @@
     padding: 0;
   }
 
+  .modal-close-button {
+    display: none;
+  }
+
   .modal-header {
     display: none;
   }
 
   .modal-content {
-    height: 284px;
-    min-width: 256px;
+    min-height: 333px;
+    min-width: 303px;
     position: relative;
 
     &:has(.format-buttons) {
-      height: calc(284px + 12px + 2rem);
+      height: calc(333px + 2rem + 16px);
     }
   }
 
   .invisible-input {
     opacity: 0;
     pointer-events: none;
-    height: 30px;
-    position: absolute;
+    height: 333px;
+    position: relative;
   }
 
   .datepicker {
-    left: initial !important;
-    top: initial !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin-top: -333px;
     position: relative;
+    width: 100%;
 
     .datepicker-picker {
       position: relative;
+    }
+
+    .datepicker-controls > button {
+      height: 42.75px;
+    }
+
+    .days {
+      .dow {
+        width: 42.75px;
+        height: 28.5px;
+      }
+      .day {
+        width: 42.75px;
+        height: 42.75px;
+      }
     }
   }
 
   .format-buttons {
     width: 100%;
     height: 2rem;
-    position: sticky;
-    bottom: 0px;
-    padding-top: 16px;
+    margin-top: 16px;
 
     & button {
       width: 50%;
@@ -83,50 +102,44 @@
 }
 
 .is-mobile .modal.date-inserter-modal {
+  .modal-close-button {
+    display: flex;
+  }
+
   .modal-header {
     display: initial;
   }
 
   .modal-content {
-    min-height: 340px;
-    min-width: 306px;
+    min-height: calc(333px + 16px);
     margin-top: 0.75rem;
     padding: 0;
+    top: 16px;
 
     &:has(.format-buttons) {
-      height: calc(340px + 2.5rem + 16px);
+      height: calc(333px + 2rem + 16px + 16px);
     }
+  }
 
-    .invisible-input {
-      height: 340px;
-      position: relative;
+  .datepicker {
+    margin-top: 0px;
+    position: absolute;
+  }
+}
+
+.is-phone .modal.date-inserter-modal {
+  .modal-content {
+    min-width: 305px;
+    min-height: 335px;
+    top: 0px;
+
+    &:has(.format-buttons) {
+      height: calc(333px + 2rem + 16px);
     }
   }
 
   .datepicker {
     width: 303px;
-    top: 16px !important;
-    position: absolute;
-
-    .days {
-      .dow {
-        width: 42.75px;
-        height: 28.5px;
-      }
-      .day {
-        width: 42.75px;
-        height: 42.75px;
-      }
-    }
-  }
-
-  .format-buttons {
-    height: initial;
-  }
-}
-
-.is-phone .modal.date-inserter-modal {
-  .datepicker {
     top: 1px !important;
     left: 1px !important;
   }
