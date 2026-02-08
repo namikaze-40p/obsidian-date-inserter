@@ -25,10 +25,6 @@
     height: 284px;
     min-width: 256px;
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
 
     &:has(.format-buttons) {
       height: calc(284px + 12px + 2rem);
