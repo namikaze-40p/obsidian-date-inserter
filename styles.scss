@@ -111,17 +111,17 @@
   }
 
   .modal-content {
-    min-height: 327px;
+    min-height: 333px;
     margin-top: 0.75rem;
     padding: 0;
     top: 16px;
 
     &:has(.format-buttons) {
-      height: calc(327px + 2rem + 16px + 16px);
+      height: calc(333px + 2rem + 16px + 16px);
     }
 
     .invisible-input {
-      height: 327px;
+      height: 333px;
     }
   }
 
@@ -134,11 +134,11 @@
 .is-phone .modal.date-inserter-modal {
   .modal-content {
     min-width: 305px;
-    min-height: 329px;
+    min-height: 331px;
     top: 0px;
 
     &:has(.format-buttons) {
-      height: calc(327px + 2rem + 16px);
+      height: calc(333px + 2rem + 16px);
     }
   }
 
