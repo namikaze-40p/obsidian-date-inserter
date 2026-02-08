@@ -52,8 +52,10 @@
   }
 
   .format-buttons {
-    width: 100%;
+    width: calc(100% - 32px);
     height: 2rem;
+    position: fixed;
+    bottom: 16px;
 
     & button {
       width: 50%;
