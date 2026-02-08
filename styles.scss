@@ -26,12 +26,12 @@
   }
 
   .modal-content {
-    height: 284px;
-    min-width: 256px;
+    min-height: 324px;
+    min-width: 303px;
     position: relative;
 
     &:has(.format-buttons) {
-      height: calc(284px + 12px + 2rem);
+      height: calc(324px + 2rem + 16px);
     }
   }
 
@@ -39,25 +39,36 @@
     opacity: 0;
     pointer-events: none;
     height: 284px;
+    height: 340px;
     position: relative;
   }
 
   .datepicker {
     left: 0 !important;
     top: 0 !important;
-    margin-top: -284px;
+    margin-top: -340px;
     position: relative;
+    width: 100%;
 
     .datepicker-picker {
       position: relative;
+    }
+
+    .days {
+      .dow {
+        width: 42.75px;
+        height: 28.5px;
+      }
+      .day {
+        width: 42.75px;
+        height: 42.75px;
+      }
     }
   }
 
   .format-buttons {
     width: 100%;
     height: 2rem;
-    position: sticky;
-    bottom: 0px;
     margin-top: 16px;
 
     & button {
@@ -97,48 +108,32 @@
   }
 
   .modal-content {
-    min-height: 340px;
-    min-width: 303px;
+    min-height: 327px;
     margin-top: 0.75rem;
     padding: 0;
 
     &:has(.format-buttons) {
-      height: calc(340px + 2.5rem + 16px);
+      height: calc(327px + 2rem + 16px);
     }
 
     .invisible-input {
-      height: 340px;
+      height: 327px;
     }
   }
 
   .datepicker {
-    width: 303px;
-    top: 16px !important;
     margin-top: 0px;
     position: absolute;
-
-    .days {
-      .dow {
-        width: 42.75px;
-        height: 28.5px;
-      }
-      .day {
-        width: 42.75px;
-        height: 42.75px;
-      }
-    }
-  }
-
-  .format-buttons {
-    height: initial;
   }
 }
 
 .is-phone .modal.date-inserter-modal {
   .modal-content {
     min-width: 305px;
+    min-height: 329px;
   }
   .datepicker {
+    width: 303px;
     top: 1px !important;
     left: 1px !important;
   }
