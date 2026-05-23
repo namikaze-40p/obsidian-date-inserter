@@ -220,6 +220,11 @@ body.theme-dark .modal.date-inserter-modal {
     color: var(--text-normal) !important;
   }
 
+  .datepicker-cell.prev:not(.disabled),
+  .datepicker-cell.next:not(.disabled) {
+    color: var(--text-muted) !important;
+  }
+
   .datepicker-cell:not(.disabled):hover {
     background-color: var(--color-base-30) !important;
   }
