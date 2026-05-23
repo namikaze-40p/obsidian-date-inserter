@@ -48,7 +48,8 @@ export class CalendarModal extends Modal {
           if (navigator.clipboard) {
             navigator.clipboard
               .writeText(inputEl.value)
-              .then(() => new Notice('Date copied to clipboard.'));
+              .then(() => new Notice('Date copied to clipboard.'))
+              .catch(() => new Notice('Failed to copy date to clipboard.'));
           }
         }
         setTimeout(() => this.close(), 0);
