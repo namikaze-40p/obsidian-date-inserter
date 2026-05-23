@@ -19,6 +19,7 @@ export interface Settings {
   format2: string;
   language: string;
   weekStart: number;
+  weekNumbers: number;
   todayHighlight: boolean;
   daysOfWeekHighlighted: {
     sun: 0 | undefined;
@@ -45,6 +46,7 @@ export const DEFAULT_SETTINGS: Settings = {
   format2: '',
   language: 'en',
   weekStart: 0,
+  weekNumbers: 0,
   todayHighlight: true,
   daysOfWeekHighlighted: {
     sun: undefined,
@@ -166,6 +168,25 @@ export class SettingTab extends PluginSettingTab {
           .setValue(`${this._plugin.settings.weekStart}`)
           .onChange(async (value) => {
             this._plugin.settings.weekStart = parseInt(value, 10) || DAY_OF_WEEK.sun;
+            await this._plugin.saveSettings();
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName('Week numbers')
+      .setDesc('Show week numbers in the calendar.')
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOptions({
+            0: 'Off',
+            1: 'ISO 8601',
+            2: 'Western traditional',
+            3: 'Middle Eastern',
+            4: 'Auto (based on week start)',
+          })
+          .setValue(`${this._plugin.settings.weekNumbers}`)
+          .onChange(async (value) => {
+            this._plugin.settings.weekNumbers = parseInt(value, 10);
             await this._plugin.saveSettings();
           }),
       );

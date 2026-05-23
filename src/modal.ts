@@ -25,6 +25,9 @@ export class CalendarModal extends Modal {
 
   onOpen(): void {
     this.modalEl.addClass('date-inserter-modal');
+    if (this._settings.weekNumbers !== 0) {
+      this.modalEl.addClass('has-week-numbers');
+    }
 
     const inputEl = this.contentEl.createEl('input');
     inputEl.addClass('invisible-input');
@@ -86,6 +89,7 @@ export class CalendarModal extends Modal {
       language: settings.language,
       daysOfWeekHighlighted,
       weekStart: settings.weekStart,
+      weekNumbers: settings.weekNumbers,
       todayHighlight: settings.todayHighlight,
       format,
       defaultViewDate: this.getStartDate(

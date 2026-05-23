@@ -35,6 +35,20 @@
     }
   }
 
+  &.has-week-numbers {
+    .modal-content {
+      min-width: 335px;
+    }
+
+    .week-numbers .dow {
+      height: 28.5px;
+    }
+
+    .datepicker .week {
+      color: #b5b5b5;
+    }
+  }
+
   .invisible-input {
     opacity: 0;
     pointer-events: none;
@@ -143,6 +157,16 @@
     top: 1px !important;
     left: 1px !important;
   }
+
+  &.has-week-numbers {
+    .modal-content {
+      min-width: 337px;
+    }
+
+    .datepicker {
+      width: 335px;
+    }
+  }
 }
 
 .setting-date-format-description {
@@ -222,5 +246,9 @@ body.theme-dark .modal.date-inserter-modal {
 
   .format-buttons button.selected {
     background-color: hsl(171, 100%, 30%);
+  }
+
+  .datepicker .week {
+    color: #777777 !important;
   }
 }
