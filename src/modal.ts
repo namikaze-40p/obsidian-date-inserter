@@ -38,7 +38,7 @@ export class CalendarModal extends Modal {
     datepicker.show();
 
     inputEl.addEventListener('hide', (ev: Event & { detail: { viewDate: Date } }) => {
-      activeWindow.setTimeout(() => {
+      window.setTimeout(() => {
         if (!this._isClosed) {
           datepicker.show();
           datepicker.setFocusedDate(ev.detail.viewDate);
@@ -58,7 +58,7 @@ export class CalendarModal extends Modal {
               .catch(() => new Notice('Failed to copy date to clipboard.'));
           }
         }
-        activeWindow.setTimeout(() => this.close(), 0);
+        window.setTimeout(() => this.close(), 0);
       }
     });
 
