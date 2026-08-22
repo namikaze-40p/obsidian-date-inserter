@@ -1,10 +1,10 @@
-const eslint = require('@eslint/js');
-const tseslint = require('typescript-eslint');
-const globals = require('globals');
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import globals from 'globals';
 
-module.exports = tseslint.config(
+export default tseslint.config(
   {
-    ignores: ['node_modules/', 'main.js', 'eslint.config.js'],
+    ignores: ['node_modules/', 'main.js', 'eslint.config.mjs'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
