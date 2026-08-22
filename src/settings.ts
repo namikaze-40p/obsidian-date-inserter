@@ -1,4 +1,5 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
+import type { SettingDefinitionItem } from 'obsidian';
 
 import DateInserter from './main.js';
 import { LANGUAGES, LOCALES } from './locales.js';
@@ -70,6 +71,43 @@ const DAY_OF_WEEK = {
 };
 
 export class SettingTab extends PluginSettingTab {
+  private static readonly DATE_FORMAT_META: { name: string; shortDesc: string }[] = [
+    { name: 'Date format', shortDesc: 'Date format to be inserted.' },
+    {
+      name: 'Another date format (Optional)',
+      shortDesc:
+        'Another date format to be inserted. If set, display buttons to select a format at the bottom of the calendar. Buttons can be selected by clicking or by “1" or “2" shortcut keys.',
+    },
+  ];
+
+  private static readonly WEEK_START_OPTIONS: Record<string, string> = {
+    [DAY_OF_WEEK.sun]: 'Sunday',
+    [DAY_OF_WEEK.mon]: 'Monday',
+    [DAY_OF_WEEK.tue]: 'Tuesday',
+    [DAY_OF_WEEK.wed]: 'Wednesday',
+    [DAY_OF_WEEK.thu]: 'Thursday',
+    [DAY_OF_WEEK.fri]: 'Friday',
+    [DAY_OF_WEEK.sat]: 'Saturday',
+  };
+
+  private static readonly WEEK_NUMBERS_OPTIONS: Record<string, string> = {
+    '0': 'Off',
+    '1': 'ISO 8601',
+    '2': 'Western traditional',
+    '3': 'Middle Eastern',
+    '4': 'Auto (based on week start)',
+  };
+
+  private static readonly DAY_OF_WEEK_CONTROLS: { key: string; label: string }[] = [
+    { key: 'highlightSun', label: 'Sunday' },
+    { key: 'highlightMon', label: 'Monday' },
+    { key: 'highlightTue', label: 'Tuesday' },
+    { key: 'highlightWed', label: 'Wednesday' },
+    { key: 'highlightThu', label: 'Thursday' },
+    { key: 'highlightFri', label: 'Friday' },
+    { key: 'highlightSat', label: 'Saturday' },
+  ];
+
   constructor(
     app: App,
     private _plugin: DateInserter,
@@ -81,49 +119,8 @@ export class SettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    new Setting(containerEl)
-      .setName('Date format')
-      .setDesc('Date format to be inserted.')
-      .addText(
-        (text) =>
-          (text
-            .setPlaceholder('mm/dd/yyyy')
-            .setValue(
-              this._plugin.settings.dateFormatSpecs[0].format ||
-                DEFAULT_SETTINGS.dateFormatSpecs[0].format,
-            )
-            .onChange(
-              async (value) => (this._plugin.settings.dateFormatSpecs[0].format = value),
-            ).inputEl.onblur = async () => await this.updateDateFormatSpecs()),
-      );
-
-    containerEl.createDiv('setting-date-format-description', (el) => {
-      el.createDiv('').setText('ex1) mm/dd/yyyy => 01/23/2024');
-      el.createDiv('').setText('ex2) DD mm-dd => Tuesday 01-23');
-      el.createDiv('').setText('ex3) yyyy.mm.dd(D) => 2024.01.23(Tue)');
-
-      const divEl = el.createDiv('format-details');
-      divEl.setText('Please check the link below for format details.');
-
-      const aTag = el.createEl('a');
-      aTag.setText('vanillajs-datepicker > Date String & Format');
-      aTag.setAttrs({ href: 'https://mymth.github.io/vanillajs-datepicker/#/date-string+format' });
-    });
-
-    new Setting(containerEl)
-      .setName('Another date format (Optional)')
-      .setDesc(
-        'Another date format to be inserted. If set, display buttons to select a format at the bottom of the calendar. Buttons can be selected by clicking or by “1" or “2" shortcut keys.',
-      )
-      .addText(
-        (text) =>
-          (text
-            .setPlaceholder('mm/dd/yyyy')
-            .setValue(this._plugin.settings.dateFormatSpecs[1].format || '')
-            .onChange(
-              async (value) => (this._plugin.settings.dateFormatSpecs[1].format = value),
-            ).inputEl.onblur = async () => await this.updateDateFormatSpecs()),
-      );
+    this.buildDateFormatSetting(new Setting(containerEl), 0);
+    this.buildDateFormatSetting(new Setting(containerEl), 1);
 
     new Setting(containerEl)
       .setName('Default date on calendar open')
@@ -131,11 +128,8 @@ export class SettingTab extends PluginSettingTab {
       .addDropdown((dropdown) =>
         dropdown
           .addOptions(DEFAULT_DATE_OPTIONS)
-          .setValue(this._plugin.settings.defaultDate || 'today')
-          .onChange(async (value) => {
-            this._plugin.settings.defaultDate = value;
-            await this._plugin.saveSettings();
-          }),
+          .setValue(this.getControlValue('defaultDate') as string)
+          .onChange(async (value) => await this.setControlValue('defaultDate', value)),
       );
 
     new Setting(containerEl)
@@ -144,11 +138,8 @@ export class SettingTab extends PluginSettingTab {
       .addDropdown((dropdown) =>
         dropdown
           .addOptions(LANGUAGES)
-          .setValue(this._plugin.settings.language)
-          .onChange(async (value) => {
-            this._plugin.settings.language = value;
-            await this.updateDateFormatSpecs();
-          }),
+          .setValue(this.getControlValue('language') as string)
+          .onChange(async (value) => await this.setControlValue('language', value)),
       );
 
     new Setting(containerEl)
@@ -156,20 +147,9 @@ export class SettingTab extends PluginSettingTab {
       .setDesc('Start day of the week.')
       .addDropdown((dropdown) =>
         dropdown
-          .addOptions({
-            [DAY_OF_WEEK.sun]: 'Sunday',
-            [DAY_OF_WEEK.mon]: 'Monday',
-            [DAY_OF_WEEK.tue]: 'Tuesday',
-            [DAY_OF_WEEK.wed]: 'Wednesday',
-            [DAY_OF_WEEK.thu]: 'Thursday',
-            [DAY_OF_WEEK.fri]: 'Friday',
-            [DAY_OF_WEEK.sat]: 'Saturday',
-          })
-          .setValue(`${this._plugin.settings.weekStart}`)
-          .onChange(async (value) => {
-            this._plugin.settings.weekStart = parseInt(value, 10) || DAY_OF_WEEK.sun;
-            await this._plugin.saveSettings();
-          }),
+          .addOptions(SettingTab.WEEK_START_OPTIONS)
+          .setValue(this.getControlValue('weekStart') as string)
+          .onChange(async (value) => await this.setControlValue('weekStart', value)),
       );
 
     new Setting(containerEl)
@@ -177,98 +157,245 @@ export class SettingTab extends PluginSettingTab {
       .setDesc('Show week numbers in the calendar.')
       .addDropdown((dropdown) =>
         dropdown
-          .addOptions({
-            0: 'Off',
-            1: 'ISO 8601',
-            2: 'Western traditional',
-            3: 'Middle Eastern',
-            4: 'Auto (based on week start)',
-          })
-          .setValue(`${this._plugin.settings.weekNumbers}`)
-          .onChange(async (value) => {
-            this._plugin.settings.weekNumbers = parseInt(value, 10);
-            await this._plugin.saveSettings();
-          }),
+          .addOptions(SettingTab.WEEK_NUMBERS_OPTIONS)
+          .setValue(this.getControlValue('weekNumbers') as string)
+          .onChange(async (value) => await this.setControlValue('weekNumbers', value)),
       );
 
     new Setting(containerEl)
       .setName('Highlight the today')
       .setDesc('Whether to highlight the today.')
       .addToggle((toggle) =>
-        toggle.setValue(this._plugin.settings.todayHighlight).onChange(async (value) => {
-          this._plugin.settings.todayHighlight = value;
-          await this._plugin.saveData(this._plugin.settings);
-        }),
+        toggle
+          .setValue(this.getControlValue('todayHighlight') as boolean)
+          .onChange(async (value) => await this.setControlValue('todayHighlight', value)),
       );
 
-    new Setting(containerEl)
+    this.buildDaysOfWeekHighlightedSetting(new Setting(containerEl));
+  }
+
+  /**
+   * @since Obsidian 1.13.0
+   */
+  getSettingDefinitions(): SettingDefinitionItem[] {
+    return [
+      {
+        name: SettingTab.DATE_FORMAT_META[0].name,
+        desc: SettingTab.DATE_FORMAT_META[0].shortDesc,
+        render: (setting: Setting) => this.buildDateFormatSetting(setting, 0),
+      },
+      {
+        name: SettingTab.DATE_FORMAT_META[1].name,
+        desc: SettingTab.DATE_FORMAT_META[1].shortDesc,
+        render: (setting: Setting) => this.buildDateFormatSetting(setting, 1),
+      },
+      {
+        name: 'Default date on calendar open',
+        desc: 'Choose which date is selected when opening the calendar.',
+        control: {
+          type: 'dropdown',
+          key: 'defaultDate',
+          options: DEFAULT_DATE_OPTIONS,
+        },
+      },
+      {
+        name: 'Language',
+        desc: 'Set calendar and date-related languages.',
+        control: {
+          type: 'dropdown',
+          key: 'language',
+          options: LANGUAGES,
+        },
+      },
+      {
+        name: 'Week start',
+        desc: 'Start day of the week.',
+        control: {
+          type: 'dropdown',
+          key: 'weekStart',
+          options: SettingTab.WEEK_START_OPTIONS,
+        },
+      },
+      {
+        name: 'Week numbers',
+        desc: 'Show week numbers in the calendar.',
+        control: {
+          type: 'dropdown',
+          key: 'weekNumbers',
+          options: SettingTab.WEEK_NUMBERS_OPTIONS,
+        },
+      },
+      {
+        name: 'Highlight the today',
+        desc: 'Whether to highlight the today.',
+        control: {
+          type: 'toggle',
+          key: 'todayHighlight',
+        },
+      },
+      {
+        type: 'group',
+        heading: 'Highlight days of week',
+        items: SettingTab.DAY_OF_WEEK_CONTROLS.map(({ key, label }) => ({
+          name: label,
+          control: { type: 'toggle' as const, key },
+        })),
+      },
+    ];
+  }
+
+  /**
+   * Reads a value for one of the keys used by {@link getSettingDefinitions}.
+   * @since Obsidian 1.13.0
+   */
+  getControlValue(key: string): unknown {
+    switch (key) {
+      case 'defaultDate':
+        return this._plugin.settings.defaultDate || 'today';
+      case 'language':
+        return this._plugin.settings.language;
+      case 'weekStart':
+        return `${this._plugin.settings.weekStart}`;
+      case 'weekNumbers':
+        return `${this._plugin.settings.weekNumbers}`;
+      case 'todayHighlight':
+        return this._plugin.settings.todayHighlight;
+      case 'highlightSun':
+        return this._plugin.settings.daysOfWeekHighlighted.sun === DAY_OF_WEEK.sun;
+      case 'highlightMon':
+        return this._plugin.settings.daysOfWeekHighlighted.mon === DAY_OF_WEEK.mon;
+      case 'highlightTue':
+        return this._plugin.settings.daysOfWeekHighlighted.tue === DAY_OF_WEEK.tue;
+      case 'highlightWed':
+        return this._plugin.settings.daysOfWeekHighlighted.wed === DAY_OF_WEEK.wed;
+      case 'highlightThu':
+        return this._plugin.settings.daysOfWeekHighlighted.thu === DAY_OF_WEEK.thu;
+      case 'highlightFri':
+        return this._plugin.settings.daysOfWeekHighlighted.fri === DAY_OF_WEEK.fri;
+      case 'highlightSat':
+        return this._plugin.settings.daysOfWeekHighlighted.sat === DAY_OF_WEEK.sat;
+      default:
+        return undefined;
+    }
+  }
+
+  /**
+   * Persists a value for one of the keys used by {@link getSettingDefinitions}.
+   * @since Obsidian 1.13.0
+   */
+  async setControlValue(key: string, value: unknown): Promise<void> {
+    switch (key) {
+      case 'defaultDate':
+        this._plugin.settings.defaultDate = value as string;
+        await this._plugin.saveSettings();
+        return;
+      case 'language':
+        this._plugin.settings.language = value as string;
+        await this.updateDateFormatSpecs();
+        return;
+      case 'weekStart':
+        this._plugin.settings.weekStart = parseInt(value as string, 10) || DAY_OF_WEEK.sun;
+        await this._plugin.saveSettings();
+        return;
+      case 'weekNumbers':
+        this._plugin.settings.weekNumbers = parseInt(value as string, 10);
+        await this._plugin.saveSettings();
+        return;
+      case 'todayHighlight':
+        this._plugin.settings.todayHighlight = value as boolean;
+        await this._plugin.saveSettings();
+        return;
+      case 'highlightSun':
+        this._plugin.settings.daysOfWeekHighlighted.sun = value ? DAY_OF_WEEK.sun : undefined;
+        await this._plugin.saveSettings();
+        return;
+      case 'highlightMon':
+        this._plugin.settings.daysOfWeekHighlighted.mon = value ? DAY_OF_WEEK.mon : undefined;
+        await this._plugin.saveSettings();
+        return;
+      case 'highlightTue':
+        this._plugin.settings.daysOfWeekHighlighted.tue = value ? DAY_OF_WEEK.tue : undefined;
+        await this._plugin.saveSettings();
+        return;
+      case 'highlightWed':
+        this._plugin.settings.daysOfWeekHighlighted.wed = value ? DAY_OF_WEEK.wed : undefined;
+        await this._plugin.saveSettings();
+        return;
+      case 'highlightThu':
+        this._plugin.settings.daysOfWeekHighlighted.thu = value ? DAY_OF_WEEK.thu : undefined;
+        await this._plugin.saveSettings();
+        return;
+      case 'highlightFri':
+        this._plugin.settings.daysOfWeekHighlighted.fri = value ? DAY_OF_WEEK.fri : undefined;
+        await this._plugin.saveSettings();
+        return;
+      case 'highlightSat':
+        this._plugin.settings.daysOfWeekHighlighted.sat = value ? DAY_OF_WEEK.sat : undefined;
+        await this._plugin.saveSettings();
+        return;
+      default:
+        return;
+    }
+  }
+
+  private buildDateFormatSetting(setting: Setting, index: 0 | 1): void {
+    const { name, shortDesc } = SettingTab.DATE_FORMAT_META[index];
+    const fallback = index === 0 ? DEFAULT_SETTINGS.dateFormatSpecs[0].format : '';
+
+    setting.setName(name).setDesc(this.buildDateFormatDesc(index, shortDesc));
+    setting.addText(
+      (text) =>
+        (text
+          .setPlaceholder('mm/dd/yyyy')
+          .setValue(this._plugin.settings.dateFormatSpecs[index].format || fallback)
+          .onChange(
+            async (value) => (this._plugin.settings.dateFormatSpecs[index].format = value),
+          ).inputEl.onblur = async () => await this.updateDateFormatSpecs()),
+    );
+  }
+
+  private buildDateFormatDesc(index: 0 | 1, shortDesc: string): string | DocumentFragment {
+    if (index !== 0) {
+      return shortDesc;
+    }
+
+    return createFragment((el) => {
+      el.createSpan({ text: shortDesc });
+
+      const descEl = el.createDiv('setting-date-format-description');
+      descEl.createDiv('').setText('ex1) mm/dd/yyyy => 01/23/2024');
+      descEl.createDiv('').setText('ex2) DD mm-dd => Tuesday 01-23');
+      descEl.createDiv('').setText('ex3) yyyy.mm.dd(D) => 2024.01.23(Tue)');
+
+      const divEl = descEl.createDiv('format-details');
+      divEl.setText('Please check the link below for format details.');
+
+      const aTag = descEl.createEl('a');
+      aTag.setText('vanillajs-datepicker > Date String & Format');
+      aTag.setAttrs({ href: 'https://mymth.github.io/vanillajs-datepicker/#/date-string+format' });
+    });
+  }
+
+  private buildDaysOfWeekHighlightedSetting(setting: Setting): void {
+    setting
       .setName('Highlight days of week')
       .setDesc('Days of the week to highlight in the calendar.');
 
-    containerEl.createDiv('setting-day-of-week', (el) => {
-      new Setting(el).setDesc('Sunday').addToggle((toggle) =>
-        toggle
-          .setValue(this._plugin.settings.daysOfWeekHighlighted.sun === DAY_OF_WEEK.sun)
-          .onChange(async (value) => {
-            this._plugin.settings.daysOfWeekHighlighted.sun = value ? DAY_OF_WEEK.sun : undefined;
-            await this._plugin.saveSettings();
-          }),
-      );
+    const parent = setting.settingEl.parentElement;
+    if (!parent) {
+      return;
+    }
 
-      new Setting(el).setDesc('Monday').addToggle((toggle) =>
-        toggle
-          .setValue(this._plugin.settings.daysOfWeekHighlighted.mon === DAY_OF_WEEK.mon)
-          .onChange(async (value) => {
-            this._plugin.settings.daysOfWeekHighlighted.mon = value ? DAY_OF_WEEK.mon : undefined;
-            await this._plugin.saveSettings();
-          }),
-      );
+    const el = parent.createDiv('setting-day-of-week');
+    parent.insertAfter(el, setting.settingEl);
 
-      new Setting(el).setDesc('Tuesday').addToggle((toggle) =>
+    for (const { key, label } of SettingTab.DAY_OF_WEEK_CONTROLS) {
+      new Setting(el).setDesc(label).addToggle((toggle) =>
         toggle
-          .setValue(this._plugin.settings.daysOfWeekHighlighted.tue === DAY_OF_WEEK.tue)
-          .onChange(async (value) => {
-            this._plugin.settings.daysOfWeekHighlighted.tue = value ? DAY_OF_WEEK.tue : undefined;
-            await this._plugin.saveSettings();
-          }),
+          .setValue(this.getControlValue(key) as boolean)
+          .onChange(async (value) => await this.setControlValue(key, value)),
       );
-
-      new Setting(el).setDesc('Wednesday').addToggle((toggle) =>
-        toggle
-          .setValue(this._plugin.settings.daysOfWeekHighlighted.wed === DAY_OF_WEEK.wed)
-          .onChange(async (value) => {
-            this._plugin.settings.daysOfWeekHighlighted.wed = value ? DAY_OF_WEEK.wed : undefined;
-            await this._plugin.saveSettings();
-          }),
-      );
-
-      new Setting(el).setDesc('Thursday').addToggle((toggle) =>
-        toggle
-          .setValue(this._plugin.settings.daysOfWeekHighlighted.thu === DAY_OF_WEEK.thu)
-          .onChange(async (value) => {
-            this._plugin.settings.daysOfWeekHighlighted.thu = value ? DAY_OF_WEEK.thu : undefined;
-            await this._plugin.saveSettings();
-          }),
-      );
-
-      new Setting(el).setDesc('Friday').addToggle((toggle) =>
-        toggle
-          .setValue(this._plugin.settings.daysOfWeekHighlighted.fri === DAY_OF_WEEK.fri)
-          .onChange(async (value) => {
-            this._plugin.settings.daysOfWeekHighlighted.fri = value ? DAY_OF_WEEK.fri : undefined;
-            await this._plugin.saveSettings();
-          }),
-      );
-
-      new Setting(el).setDesc('Saturday').addToggle((toggle) =>
-        toggle
-          .setValue(this._plugin.settings.daysOfWeekHighlighted.sat === DAY_OF_WEEK.sat)
-          .onChange(async (value) => {
-            this._plugin.settings.daysOfWeekHighlighted.sat = value ? DAY_OF_WEEK.sat : undefined;
-            await this._plugin.saveSettings();
-          }),
-      );
-    });
+    }
   }
 
   async updateDateFormatSpecs(): Promise<void> {

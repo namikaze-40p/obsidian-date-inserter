@@ -23,7 +23,7 @@
     "eslint": "^10.8.0",
     "globals": "^17.7.0",
     "npm-run-all2": "^9.0.2",
-    "obsidian": "latest",
+    "obsidian": "^1.13.1",
     "prettier": "3.6.2",
     "sass": "^1.71.0",
     "tslib": "2.4.0",
