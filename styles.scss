@@ -1,4 +1,4 @@
-@import './node_modules/vanillajs-datepicker/sass/datepicker';
+@use './node_modules/vanillajs-datepicker/sass/datepicker';
 
 .modal.date-inserter-modal {
   height: max-content;
