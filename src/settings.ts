@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting, debounce } from 'obsidian';
 import type { SettingDefinitionItem } from 'obsidian';
 
 import DateInserter from './main.js';
@@ -106,11 +106,22 @@ export class SettingTab extends PluginSettingTab {
     { key: 'highlightSat', label: 'Saturday' },
   ];
 
+  private _updateDateFormatSpecs = debounce(
+    async () => await this._plugin.updateDateFormatSpecs(),
+    500,
+    true,
+  );
+
   constructor(
     app: App,
     private _plugin: DateInserter,
   ) {
     super(app, _plugin);
+  }
+
+  hide(): void {
+    this._updateDateFormatSpecs.run();
+    super.hide();
   }
 
   display(): void {
@@ -341,15 +352,16 @@ export class SettingTab extends PluginSettingTab {
     const fallback = index === 0 ? DEFAULT_SETTINGS.dateFormatSpecs[0].format : '';
 
     setting.setName(name).setDesc(this.buildDateFormatDesc(index, shortDesc));
-    setting.addText(
-      (text) =>
-        (text
-          .setPlaceholder('mm/dd/yyyy')
-          .setValue(this._plugin.settings.dateFormatSpecs[index].format || fallback)
-          .onChange(
-            async (value) => (this._plugin.settings.dateFormatSpecs[index].format = value),
-          ).inputEl.onblur = async () => await this._plugin.updateDateFormatSpecs()),
-    );
+    setting.addText((text) => {
+      text
+        .setPlaceholder('mm/dd/yyyy')
+        .setValue(this._plugin.settings.dateFormatSpecs[index].format || fallback)
+        .onChange((value) => {
+          this._plugin.settings.dateFormatSpecs[index].format = value;
+          this._updateDateFormatSpecs();
+        });
+      text.inputEl.addEventListener('blur', () => this._updateDateFormatSpecs.run());
+    });
   }
 
   private buildDateFormatDesc(index: 0 | 1, shortDesc: string): string | DocumentFragment {
