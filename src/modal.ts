@@ -204,7 +204,7 @@ export class CalendarModal extends Modal {
       const [format, format2] = this._settings.dateFormatSpecs.map(({ format }) => format);
 
       const formatBtn1 = el.createEl('button');
-      formatBtn1.createSpan('').textContent = format || DEFAULT_SETTINGS.format;
+      formatBtn1.createSpan('').textContent = format;
       formatBtn1.addEventListener('click', () => {
         datepicker.config.format = format;
         formatBtn1.addClass('selected');

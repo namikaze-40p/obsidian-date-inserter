@@ -9,11 +9,15 @@ export type { DateFormatSpec };
 
 export const DEFAULT_DATE_OPTIONS = { today: 'Today', selectedDate: 'Selected date' } as const;
 
+/** Fields from versions before `dateFormatSpecs` was introduced. Only read during migration. */
+export type LegacySettings = {
+  format?: string;
+  format2?: string;
+};
+
 export interface Settings {
   dateFormatSpecs: DateFormatSpec[];
   defaultDate: string;
-  format: string;
-  format2: string;
   language: string;
   weekStart: number;
   weekNumbers: number;
@@ -39,8 +43,6 @@ export const DEFAULT_SETTINGS: Settings = {
     },
   ],
   defaultDate: 'today',
-  format: 'mm/dd/yyyy',
-  format2: '',
   language: 'en',
   weekStart: 0,
   weekNumbers: 0,

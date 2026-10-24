@@ -1,6 +1,6 @@
 import { Editor, Plugin } from 'obsidian';
 
-import { DEFAULT_SETTINGS, SettingTab, Settings } from './settings.js';
+import { DEFAULT_SETTINGS, LegacySettings, SettingTab, Settings } from './settings.js';
 import { CalendarModal } from './modal.js';
 import { generateDateFormatSpec } from './dateFormatSpec.js';
 
@@ -30,8 +30,9 @@ export default class DateInserter extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    this.settings = Object.assign(structuredClone(DEFAULT_SETTINGS), await this.loadData());
-    await this.migrateSettingValues();
+    const data: (Partial<Settings> & LegacySettings) | null = await this.loadData();
+    this.settings = Object.assign(structuredClone(DEFAULT_SETTINGS), data);
+    await this.migrateSettingValues(data);
   }
 
   async saveSettings(): Promise<void> {
@@ -46,28 +47,36 @@ export default class DateInserter extends Plugin {
     await this.saveSettings();
   }
 
-  private async migrateSettingValues(): Promise<void> {
-    if (this.settings.dateFormatSpecs?.length > 1) {
+  private async migrateSettingValues(
+    data: (Partial<Settings> & LegacySettings) | null,
+  ): Promise<void> {
+    const needsDateFormatSpecs = !(data?.dateFormatSpecs && data.dateFormatSpecs.length > 1);
+    const hasLegacyFields = !!data && ('format' in data || 'format2' in data);
+    if (!needsDateFormatSpecs && !hasLegacyFields) {
       return;
     }
-    const dateFormatSpecs = [
-      {
-        format: this.settings.format || DEFAULT_SETTINGS.dateFormatSpecs[0].format,
+
+    const settings = this.settings as Settings & LegacySettings;
+    if (needsDateFormatSpecs) {
+      const formats = [
+        settings.format || DEFAULT_SETTINGS.dateFormatSpecs[0].format,
+        settings.format2 || '',
+      ];
+      settings.dateFormatSpecs = formats.map((format) => ({
+        format,
         regex: '',
         minLength: 0,
         maxLength: 0,
-      },
-      {
-        format: this.settings.format2 || '',
-        regex: '',
-        minLength: 0,
-        maxLength: 0,
-      },
-    ];
-    this.settings.dateFormatSpecs = dateFormatSpecs;
-    this.settings.defaultDate = DEFAULT_SETTINGS.defaultDate;
-    delete (this.settings as Partial<Settings>).format;
-    delete (this.settings as Partial<Settings>).format2;
-    await this.updateDateFormatSpecs();
+      }));
+      settings.defaultDate = DEFAULT_SETTINGS.defaultDate;
+    }
+    delete settings.format;
+    delete settings.format2;
+
+    if (needsDateFormatSpecs) {
+      await this.updateDateFormatSpecs();
+    } else {
+      await this.saveSettings();
+    }
   }
 }
