@@ -186,10 +186,15 @@ export class CalendarModal extends Modal {
 
   private parseSelection(format: string, selection: string): number | undefined {
     const locale = this._settings.language || DEFAULT_SETTINGS.language;
-    const parsed = Datepicker.parseDate(selection, format, locale);
-    return parsed && Datepicker.formatDate(parsed, format, locale) === selection
-      ? parsed
-      : undefined;
+    try {
+      const parsed = Datepicker.parseDate(selection, format, locale);
+      return parsed && Datepicker.formatDate(parsed, format, locale) === selection
+        ? parsed
+        : undefined;
+    } catch {
+      // Datepicker throws on a format without any date tokens (e.g. "abc").
+      return undefined;
+    }
   }
 
   private calcSearchRange(dateFormatSpec: DateFormatSpec, cursorPos: number): [number, number] {
