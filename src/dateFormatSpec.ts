@@ -69,14 +69,14 @@ const generateRegex = (
 };
 
 const namesToRegexPattern = (names: string[]): RegexPattern => {
-  const regex = `(?:${names.join('|')})`;
+  const regex = `(?:${names.map(escapeRegex).join('|')})`;
   const min = Math.min(...names.map((name) => name.length));
   const max = Math.max(...names.map((name) => name.length));
   return { regex, min, max };
 };
 
 const formatToRegexPattern = (format: string, language: string): RegexPattern => {
-  const locale = LOCALES[language];
+  const locale = LOCALES[language] ?? LOCALES.en;
   switch (format) {
     case 'dd': {
       const regex = '(?:0[1-9]|[12][0-9]|3[01])'; // ex: 01, 02, ..., 31
