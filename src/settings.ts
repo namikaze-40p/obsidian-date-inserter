@@ -2,7 +2,7 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import type { SettingDefinitionItem } from 'obsidian';
 
 import DateInserter from './main.js';
-import { DateFormatSpec, generateDateFormatSpec } from './dateFormatSpec.js';
+import { DateFormatSpec } from './dateFormatSpec.js';
 import { LANGUAGES } from './locales.js';
 
 export type { DateFormatSpec };
@@ -287,7 +287,7 @@ export class SettingTab extends PluginSettingTab {
         return;
       case 'language':
         this._plugin.settings.language = value as string;
-        await this.updateDateFormatSpecs();
+        await this._plugin.updateDateFormatSpecs();
         return;
       case 'weekStart':
         this._plugin.settings.weekStart = parseInt(value as string, 10) || DAY_OF_WEEK.sun;
@@ -346,7 +346,7 @@ export class SettingTab extends PluginSettingTab {
           .setValue(this._plugin.settings.dateFormatSpecs[index].format || fallback)
           .onChange(
             async (value) => (this._plugin.settings.dateFormatSpecs[index].format = value),
-          ).inputEl.onblur = async () => await this.updateDateFormatSpecs()),
+          ).inputEl.onblur = async () => await this._plugin.updateDateFormatSpecs()),
     );
   }
 
@@ -392,13 +392,5 @@ export class SettingTab extends PluginSettingTab {
           .onChange(async (value) => await this.setControlValue(key, value)),
       );
     }
-  }
-
-  async updateDateFormatSpecs(): Promise<void> {
-    const { dateFormatSpecs, language } = this._plugin.settings;
-    this._plugin.settings.dateFormatSpecs = dateFormatSpecs.map(({ format }) =>
-      generateDateFormatSpec(format, language),
-    );
-    await this._plugin.saveSettings();
   }
 }

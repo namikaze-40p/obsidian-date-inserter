@@ -2,10 +2,10 @@ import { Editor, Plugin } from 'obsidian';
 
 import { DEFAULT_SETTINGS, SettingTab, Settings } from './settings.js';
 import { CalendarModal } from './modal.js';
+import { generateDateFormatSpec } from './dateFormatSpec.js';
 
 export default class DateInserter extends Plugin {
   settings: Settings;
-  private _settingTab: SettingTab;
 
   async onload(): Promise<void> {
     await this.loadSettings();
@@ -26,8 +26,7 @@ export default class DateInserter extends Plugin {
       },
     });
 
-    this._settingTab = new SettingTab(this.app, this);
-    this.addSettingTab(this._settingTab);
+    this.addSettingTab(new SettingTab(this.app, this));
   }
 
   async loadSettings(): Promise<void> {
@@ -37,6 +36,14 @@ export default class DateInserter extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+  }
+
+  async updateDateFormatSpecs(): Promise<void> {
+    const { dateFormatSpecs, language } = this.settings;
+    this.settings.dateFormatSpecs = dateFormatSpecs.map(({ format }) =>
+      generateDateFormatSpec(format, language),
+    );
+    await this.saveSettings();
   }
 
   private async migrateSettingValues(): Promise<void> {
@@ -61,7 +68,6 @@ export default class DateInserter extends Plugin {
     this.settings.defaultDate = DEFAULT_SETTINGS.defaultDate;
     delete (this.settings as Partial<Settings>).format;
     delete (this.settings as Partial<Settings>).format2;
-    await this.saveSettings();
-    await this._settingTab.updateDateFormatSpecs();
+    await this.updateDateFormatSpecs();
   }
 }
