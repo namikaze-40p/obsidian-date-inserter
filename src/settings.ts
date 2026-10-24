@@ -2,14 +2,10 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import type { SettingDefinitionItem } from 'obsidian';
 
 import DateInserter from './main.js';
-import { LANGUAGES, LOCALES } from './locales.js';
+import { DateFormatSpec, generateDateFormatSpec } from './dateFormatSpec.js';
+import { LANGUAGES } from './locales.js';
 
-export type DateFormatSpec = {
-  format: string;
-  regex: string;
-  minLength: number;
-  maxLength: number;
-};
+export type { DateFormatSpec };
 
 export const DEFAULT_DATE_OPTIONS = { today: 'Today', selectedDate: 'Selected date' } as const;
 
@@ -399,156 +395,10 @@ export class SettingTab extends PluginSettingTab {
   }
 
   async updateDateFormatSpecs(): Promise<void> {
-    this._plugin.settings.dateFormatSpecs[0] = this.generateDateFormatSpec(
-      this._plugin.settings.dateFormatSpecs[0].format,
-    );
-    this._plugin.settings.dateFormatSpecs[1] = this.generateDateFormatSpec(
-      this._plugin.settings.dateFormatSpecs[1].format,
+    const { dateFormatSpecs, language } = this._plugin.settings;
+    this._plugin.settings.dateFormatSpecs = dateFormatSpecs.map(({ format }) =>
+      generateDateFormatSpec(format, language),
     );
     await this._plugin.saveSettings();
-  }
-
-  private generateDateFormatSpec(format: string): DateFormatSpec {
-    const formatTokens = this.generateTokens(format);
-    const { regex, min: minLength, max: maxLength } = this.generateRegex(format, formatTokens);
-    return { format, regex, minLength, maxLength };
-  }
-
-  private generateTokens(format: string, tokens: string[] = []): string[] {
-    const tokenTypes = [
-      ['yyyy', 'yy', 'y'],
-      ['mm', 'm'],
-      ['MM', 'M'],
-      ['dd', 'd'],
-      ['DD', 'D'],
-    ];
-    const token = tokenTypes.reduce(
-      (acc, tokens) => {
-        const token = this.findFirstToken(format, tokens);
-        if (token && token.index < acc.index) {
-          return token;
-        }
-        return acc;
-      },
-      { format: '', index: Infinity },
-    );
-
-    if (token.format) {
-      const nextFormat = format.slice(token.index + token.format.length);
-      return this.generateTokens(nextFormat, [...tokens, token.format]);
-    }
-    return tokens;
-  }
-
-  private generateRegex(
-    format: string,
-    formatTokens: string[],
-    result = { regex: '', min: 0, max: 0 },
-  ): { regex: string; min: number; max: number } {
-    const token = this.findFirstToken(format, formatTokens);
-    if (token) {
-      const { regex, min, max } = this.formatToRegexPattern(token.format);
-      const prefix = format.slice(0, token.index);
-      const tmpResult = { ...result };
-      const escapedRegex = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      tmpResult.regex += escapedRegex + regex;
-      tmpResult.min += prefix.length + min;
-      tmpResult.max += prefix.length + max;
-      formatTokens.shift();
-      return this.generateRegex(
-        format.slice(token.index + token.format.length),
-        formatTokens,
-        tmpResult,
-      );
-    } else {
-      const finalResult = { ...result };
-      const escapedRegex = format.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      finalResult.regex += escapedRegex;
-      finalResult.min += format.length;
-      finalResult.max += format.length;
-      return finalResult;
-    }
-  }
-
-  private formatToRegexPattern(format: string): { regex: string; min: number; max: number } {
-    switch (format) {
-      case 'dd': {
-        const regex = '(?:0[1-9]|[12][0-9]|3[01])'; // ex: 01, 02, ..., 31
-        return { regex, min: 2, max: 2 };
-      }
-      case 'd': {
-        const regex = '(?:[1-9]|[12][0-9]|3[01])'; // ex: 1, 2, ..., 31
-        return { regex, min: 1, max: 2 };
-      }
-      case 'DD': {
-        const days = LOCALES[this._plugin.settings.language].days;
-        const regex = `(?:${days.join('|')})`; // ex: Sunday, Monday, ..., Saturday
-        const min = Math.min(...days.map((day) => day.length));
-        const max = Math.max(...days.map((day) => day.length));
-        return { regex, min, max };
-      }
-      case 'D': {
-        const days = LOCALES[this._plugin.settings.language].daysShort;
-        const regex = `(?:${days.join('|')})`; // ex: Sun, Mon, ..., Sat
-        const min = Math.min(...days.map((day) => day.length));
-        const max = Math.max(...days.map((day) => day.length));
-        return { regex, min, max };
-      }
-      case 'mm': {
-        const regex = '(?:0[1-9]|1[0-2])'; // ex: 01, 02, ..., 12
-        return { regex, min: 2, max: 2 };
-      }
-      case 'm': {
-        const regex = '(?:[1-9]|1[0-2])'; // ex: 1, 2, ..., 12
-        return { regex, min: 1, max: 2 };
-      }
-      case 'MM': {
-        const months = LOCALES[this._plugin.settings.language].months;
-        const regex = `(?:${months.join('|')})`; // ex: January, February, ..., December
-        const min = Math.min(...months.map((month) => month.length));
-        const max = Math.max(...months.map((month) => month.length));
-        return { regex, min, max };
-      }
-      case 'M': {
-        const months = LOCALES[this._plugin.settings.language].monthsShort;
-        const regex = `(?:${months.join('|')})`; // ex: Jan, Feb, ..., Dec
-        const min = Math.min(...months.map((month) => month.length));
-        const max = Math.max(...months.map((month) => month.length));
-        return { regex, min, max };
-      }
-      case 'yyyy': {
-        const regex = '(?:\\d{4})'; // ex: 0001, 0645, 1900, 2020
-        return { regex, min: 4, max: 4 };
-      }
-      case 'yy': {
-        const regex = '(?:\\d{2})'; // ex: 01, 45, 00, 20
-        return { regex, min: 2, max: 2 };
-      }
-      case 'y': {
-        const regex = '(?:\\d+)'; // ex: 1, 645, 1900, 2020
-        return { regex, min: 1, max: 4 };
-      }
-      default:
-        return { regex: '', min: 0, max: 0 };
-    }
-  }
-
-  private findFirstToken(
-    format: string,
-    formatTokens: string[],
-  ): { format: string; index: number } | null {
-    let index = -1;
-    let value: string | null = null;
-
-    for (const token of formatTokens) {
-      const idx = format.indexOf(token);
-      if (idx >= 0) {
-        index = idx;
-        value = token;
-        break;
-      }
-    }
-
-    return value ? { format: value, index } : null;
   }
 }
