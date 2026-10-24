@@ -30,7 +30,7 @@ export default class DateInserter extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    this.settings = Object.assign(structuredClone(DEFAULT_SETTINGS), await this.loadData());
     await this.migrateSettingValues();
   }
 
