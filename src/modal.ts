@@ -39,17 +39,19 @@ export class CalendarModal extends Modal {
     const datepicker = new Datepicker(inputEl, options);
     datepicker.show();
 
-    inputEl.addEventListener('hide', (ev: Event & { detail: { viewDate: Date } }) => {
+    inputEl.addEventListener('hide', (ev) => {
+      const { viewDate } = (ev as CustomEvent<{ viewDate: Date }>).detail;
       window.setTimeout(() => {
         if (!this._isClosed) {
           datepicker.show();
-          datepicker.setFocusedDate(ev.detail.viewDate);
+          datepicker.setFocusedDate(viewDate);
         }
       }, 0);
     });
-    inputEl.addEventListener('changeDate', (ev: Event & { detail: { date: Date } }) => {
+    inputEl.addEventListener('changeDate', (ev) => {
       if (!this._isSelected) {
-        const date = formatDate(ev.detail.date.getTime(), this._format, this._settings.language);
+        const { date: selectedDate } = (ev as CustomEvent<{ date: Date }>).detail;
+        const date = formatDate(selectedDate.getTime(), this._format, this._settings.language);
         this._isSelected = true;
         if (this._editor) {
           this.insertDateToCursorPosition(date, this._editor);

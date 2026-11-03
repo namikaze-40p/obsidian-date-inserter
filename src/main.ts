@@ -5,7 +5,7 @@ import { CalendarModal } from './modal.js';
 import { generateDateFormatSpec } from './dateFormatSpec.js';
 
 export default class DateInserter extends Plugin {
-  settings: Settings;
+  settings!: Settings;
 
   async onload(): Promise<void> {
     await this.loadSettings();
