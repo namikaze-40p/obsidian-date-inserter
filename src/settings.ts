@@ -17,7 +17,7 @@ export type LegacySettings = {
 
 export interface Settings {
   dateFormatSpecs: DateFormatSpec[];
-  defaultDate: string;
+  defaultDate: keyof typeof DEFAULT_DATE_OPTIONS;
   language: string;
   weekStart: number;
   weekNumbers: number;
@@ -297,7 +297,7 @@ export class SettingTab extends PluginSettingTab {
   async setControlValue(key: string, value: unknown): Promise<void> {
     switch (key) {
       case 'defaultDate':
-        this._plugin.settings.defaultDate = value as string;
+        this._plugin.settings.defaultDate = value as Settings['defaultDate'];
         await this._plugin.saveSettings();
         return;
       case 'language':
