@@ -8,7 +8,8 @@
     "package-lock.json",
     "package.json",
     "tsconfig.json",
-    "src/locales.ts"
+    "src/locales.ts",
+    "test"
   ],
   "words": ["callout", "datepicker", "namikaze", "vanillajs"]
 }
