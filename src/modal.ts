@@ -4,7 +4,7 @@ import { Datepicker } from 'vanillajs-datepicker';
 import { DatepickerOptions } from 'vanillajs-datepicker/Datepicker';
 
 import { formatDate, hasDateToken, parseDate } from './dateFormat.js';
-import { LOCALES } from './locales';
+import { LOCALES } from './locales.js';
 import { DEFAULT_SETTINGS, DateFormatSpec, Settings } from './settings.js';
 
 Object.assign(Datepicker.locales, LOCALES);

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { formatDate, parseDate } from '../src/dateFormat';
-import { TODAY, localDate, useFixedToday } from './helpers';
+import { formatDate, parseDate } from '../src/dateFormat.js';
+import { TODAY, localDate, useFixedToday } from './helpers.js';
 
 useFixedToday();
 

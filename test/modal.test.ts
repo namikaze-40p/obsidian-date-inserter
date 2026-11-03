@@ -1,10 +1,10 @@
 import type { App, Editor } from 'obsidian';
 import { describe, expect, it, vi } from 'vitest';
 
-import { generateDateFormatSpec } from '../src/dateFormatSpec';
-import { CalendarModal } from '../src/modal';
-import { DEFAULT_SETTINGS } from '../src/settings';
-import { localDate, useFixedToday } from './helpers';
+import { generateDateFormatSpec } from '../src/dateFormatSpec.js';
+import { CalendarModal } from '../src/modal.js';
+import { DEFAULT_SETTINGS } from '../src/settings.js';
+import { localDate, useFixedToday } from './helpers.js';
 
 useFixedToday();
 

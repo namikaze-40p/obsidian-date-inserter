@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { generateDateFormatSpec } from '../src/dateFormatSpec';
+import { generateDateFormatSpec } from '../src/dateFormatSpec.js';
 
 const matchesWhole = (format: string, text: string, language = 'en'): boolean =>
   new RegExp(`^${generateDateFormatSpec(format, language).regex}$`).test(text);
