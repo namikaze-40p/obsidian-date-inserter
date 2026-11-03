@@ -12,9 +12,6 @@ Object.assign(Datepicker.locales, LOCALES);
 export class CalendarModal extends Modal {
   private _isSelected = false;
   private _isClosed = false;
-  private _detectedRanges: [number, number][] = [];
-  private _detectedLineNo = 0;
-  private _hasInitialSelection = false;
   private _format = '';
 
   constructor(
@@ -117,17 +114,12 @@ export class CalendarModal extends Modal {
     const { line: lineNo, ch } = editor.getCursor();
     const text = selection || editor.getLine(lineNo);
 
-    this._detectedLineNo = lineNo;
-    this._hasInitialSelection = !!selection;
-
     let widestRange: [number, number] | undefined;
     let widestParsed: number | undefined;
 
-    for (let i = 0; i < dateFormatSpecs.length; i++) {
-      const dateFormatSpec = dateFormatSpecs[i];
+    for (const dateFormatSpec of dateFormatSpecs) {
       const range = this.calcParseRange(dateFormatSpec, text, ch, !!selection);
       const parsed = this.parseSelection(dateFormatSpec.format, text.substring(...range));
-      this._detectedRanges[i] = parsed !== undefined ? range : [ch, ch];
 
       if (parsed && (!widestRange || range[1] - range[0] > widestRange[1] - widestRange[0])) {
         widestRange = range;
@@ -140,28 +132,6 @@ export class CalendarModal extends Modal {
     }
 
     return isDefaultToday ? undefined : widestParsed;
-  }
-
-  private updateEditorSelection(): void {
-    const editor = this._editor;
-    if (!editor || this._hasInitialSelection) {
-      return;
-    }
-    let widestRange: [number, number] | undefined;
-    for (const range of this._detectedRanges) {
-      if (range[0] !== range[1] && (!widestRange || range[1] - range[0] > widestRange[1] - widestRange[0])) {
-        widestRange = range;
-      }
-    }
-    if (widestRange) {
-      editor.setSelection(
-        { line: this._detectedLineNo, ch: widestRange[0] },
-        { line: this._detectedLineNo, ch: widestRange[1] },
-      );
-    } else {
-      const ch = this._detectedRanges[0]?.[0] ?? 0;
-      editor.setSelection({ line: this._detectedLineNo, ch }, { line: this._detectedLineNo, ch });
-    }
   }
 
   private calcParseRange(
@@ -217,7 +187,6 @@ export class CalendarModal extends Modal {
         this._format = format;
         formatBtn1.addClass('selected');
         formatBtn2.removeClass('selected');
-        this.updateEditorSelection();
       });
       formatBtn1.addClass('selected');
 
@@ -227,7 +196,6 @@ export class CalendarModal extends Modal {
         this._format = format2;
         formatBtn2.addClass('selected');
         formatBtn1.removeClass('selected');
-        this.updateEditorSelection();
       });
 
       this.modalEl.addEventListener('keyup', (ev) => {
