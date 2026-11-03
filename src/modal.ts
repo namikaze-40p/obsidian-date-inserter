@@ -179,36 +179,20 @@ export class CalendarModal extends Modal {
 
   private setupFormatButtons(): void {
     this.contentEl.createDiv('format-buttons', (el) => {
-      const [format, format2] = this._settings.dateFormatSpecs.map(({ format }) => format);
-
-      const formatBtn1 = el.createEl('button');
-      formatBtn1.createSpan('').textContent = format;
-      formatBtn1.addEventListener('click', () => {
-        this._format = format;
-        formatBtn1.addClass('selected');
-        formatBtn2.removeClass('selected');
+      const buttons = this._settings.dateFormatSpecs.map(({ format }) => {
+        const button = el.createEl('button');
+        button.createSpan('').textContent = format;
+        button.addEventListener('click', () => {
+          this._format = format;
+          buttons.forEach((other) => other.removeClass('selected'));
+          button.addClass('selected');
+        });
+        return button;
       });
-      formatBtn1.addClass('selected');
-
-      const formatBtn2 = el.createEl('button');
-      formatBtn2.createSpan('').textContent = format2;
-      formatBtn2.addEventListener('click', () => {
-        this._format = format2;
-        formatBtn2.addClass('selected');
-        formatBtn1.removeClass('selected');
-      });
+      buttons[0].addClass('selected');
 
       this.modalEl.addEventListener('keyup', (ev) => {
-        switch (ev.key) {
-          case '1':
-            formatBtn1.click();
-            break;
-          case '2':
-            formatBtn2.click();
-            break;
-          default:
-          // nop
-        }
+        buttons[Number(ev.key) - 1]?.click();
       });
     });
   }
