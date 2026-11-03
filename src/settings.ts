@@ -96,14 +96,18 @@ export class SettingTab extends PluginSettingTab {
     '4': 'Auto (based on week start)',
   };
 
-  private static readonly DAY_OF_WEEK_CONTROLS: { key: string; label: string }[] = [
-    { key: 'highlightSun', label: 'Sunday' },
-    { key: 'highlightMon', label: 'Monday' },
-    { key: 'highlightTue', label: 'Tuesday' },
-    { key: 'highlightWed', label: 'Wednesday' },
-    { key: 'highlightThu', label: 'Thursday' },
-    { key: 'highlightFri', label: 'Friday' },
-    { key: 'highlightSat', label: 'Saturday' },
+  private static readonly DAY_OF_WEEK_CONTROLS: {
+    key: string;
+    day: keyof typeof DAY_OF_WEEK;
+    label: string;
+  }[] = [
+    { key: 'highlightSun', day: 'sun', label: 'Sunday' },
+    { key: 'highlightMon', day: 'mon', label: 'Monday' },
+    { key: 'highlightTue', day: 'tue', label: 'Tuesday' },
+    { key: 'highlightWed', day: 'wed', label: 'Wednesday' },
+    { key: 'highlightThu', day: 'thu', label: 'Thursday' },
+    { key: 'highlightFri', day: 'fri', label: 'Friday' },
+    { key: 'highlightSat', day: 'sat', label: 'Saturday' },
   ];
 
   private _updateDateFormatSpecs = debounce(
@@ -260,33 +264,22 @@ export class SettingTab extends PluginSettingTab {
    * @since Obsidian 1.13.0
    */
   getControlValue(key: string): unknown {
+    const { settings } = this._plugin;
     switch (key) {
       case 'defaultDate':
-        return this._plugin.settings.defaultDate || 'today';
+        return settings.defaultDate || 'today';
       case 'language':
-        return this._plugin.settings.language;
+        return settings.language;
       case 'weekStart':
-        return `${this._plugin.settings.weekStart}`;
+        return `${settings.weekStart}`;
       case 'weekNumbers':
-        return `${this._plugin.settings.weekNumbers}`;
+        return `${settings.weekNumbers}`;
       case 'todayHighlight':
-        return this._plugin.settings.todayHighlight;
-      case 'highlightSun':
-        return this._plugin.settings.daysOfWeekHighlighted.sun === DAY_OF_WEEK.sun;
-      case 'highlightMon':
-        return this._plugin.settings.daysOfWeekHighlighted.mon === DAY_OF_WEEK.mon;
-      case 'highlightTue':
-        return this._plugin.settings.daysOfWeekHighlighted.tue === DAY_OF_WEEK.tue;
-      case 'highlightWed':
-        return this._plugin.settings.daysOfWeekHighlighted.wed === DAY_OF_WEEK.wed;
-      case 'highlightThu':
-        return this._plugin.settings.daysOfWeekHighlighted.thu === DAY_OF_WEEK.thu;
-      case 'highlightFri':
-        return this._plugin.settings.daysOfWeekHighlighted.fri === DAY_OF_WEEK.fri;
-      case 'highlightSat':
-        return this._plugin.settings.daysOfWeekHighlighted.sat === DAY_OF_WEEK.sat;
-      default:
-        return undefined;
+        return settings.todayHighlight;
+      default: {
+        const day = this.findHighlightedDay(key);
+        return day && settings.daysOfWeekHighlighted[day] === DAY_OF_WEEK[day];
+      }
     }
   }
 
@@ -295,58 +288,39 @@ export class SettingTab extends PluginSettingTab {
    * @since Obsidian 1.13.0
    */
   async setControlValue(key: string, value: unknown): Promise<void> {
+    const { settings } = this._plugin;
     switch (key) {
       case 'defaultDate':
-        this._plugin.settings.defaultDate = value as Settings['defaultDate'];
-        await this._plugin.saveSettings();
-        return;
+        settings.defaultDate = value as Settings['defaultDate'];
+        break;
       case 'language':
-        this._plugin.settings.language = value as string;
+        settings.language = value as string;
         await this._plugin.updateDateFormatSpecs();
         return;
       case 'weekStart':
-        this._plugin.settings.weekStart = parseInt(value as string, 10) || DAY_OF_WEEK.sun;
-        await this._plugin.saveSettings();
-        return;
+        settings.weekStart = parseInt(value as string, 10) || DAY_OF_WEEK.sun;
+        break;
       case 'weekNumbers':
-        this._plugin.settings.weekNumbers = parseInt(value as string, 10);
-        await this._plugin.saveSettings();
-        return;
+        settings.weekNumbers = parseInt(value as string, 10);
+        break;
       case 'todayHighlight':
-        this._plugin.settings.todayHighlight = value as boolean;
-        await this._plugin.saveSettings();
-        return;
-      case 'highlightSun':
-        this._plugin.settings.daysOfWeekHighlighted.sun = value ? DAY_OF_WEEK.sun : undefined;
-        await this._plugin.saveSettings();
-        return;
-      case 'highlightMon':
-        this._plugin.settings.daysOfWeekHighlighted.mon = value ? DAY_OF_WEEK.mon : undefined;
-        await this._plugin.saveSettings();
-        return;
-      case 'highlightTue':
-        this._plugin.settings.daysOfWeekHighlighted.tue = value ? DAY_OF_WEEK.tue : undefined;
-        await this._plugin.saveSettings();
-        return;
-      case 'highlightWed':
-        this._plugin.settings.daysOfWeekHighlighted.wed = value ? DAY_OF_WEEK.wed : undefined;
-        await this._plugin.saveSettings();
-        return;
-      case 'highlightThu':
-        this._plugin.settings.daysOfWeekHighlighted.thu = value ? DAY_OF_WEEK.thu : undefined;
-        await this._plugin.saveSettings();
-        return;
-      case 'highlightFri':
-        this._plugin.settings.daysOfWeekHighlighted.fri = value ? DAY_OF_WEEK.fri : undefined;
-        await this._plugin.saveSettings();
-        return;
-      case 'highlightSat':
-        this._plugin.settings.daysOfWeekHighlighted.sat = value ? DAY_OF_WEEK.sat : undefined;
-        await this._plugin.saveSettings();
-        return;
-      default:
-        return;
+        settings.todayHighlight = value as boolean;
+        break;
+      default: {
+        const day = this.findHighlightedDay(key);
+        if (!day) {
+          return;
+        }
+        Object.assign(settings.daysOfWeekHighlighted, {
+          [day]: value ? DAY_OF_WEEK[day] : undefined,
+        });
+      }
     }
+    await this._plugin.saveSettings();
+  }
+
+  private findHighlightedDay(key: string): keyof typeof DAY_OF_WEEK | undefined {
+    return SettingTab.DAY_OF_WEEK_CONTROLS.find((control) => control.key === key)?.day;
   }
 
   private buildDateFormatSetting(setting: Setting, index: 0 | 1): void {
