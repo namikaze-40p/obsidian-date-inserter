@@ -1,6 +1,6 @@
 {
   "name": "date-inserter",
-  "version": "0.8.0-beta.2",
+  "version": "0.7.6",
   "description": "An Obsidian plugin that lets you insert a date at the cursor position using a calendar.",
   "main": "main.js",
   "scripts": {
