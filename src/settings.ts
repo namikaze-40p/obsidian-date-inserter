@@ -107,7 +107,9 @@ export class SettingTab extends PluginSettingTab {
   ];
 
   private _updateDateFormatSpecs = debounce(
-    async () => await this._plugin.updateDateFormatSpecs(),
+    () => {
+      this._plugin.updateDateFormatSpecs().catch(console.error);
+    },
     500,
     true,
   );
