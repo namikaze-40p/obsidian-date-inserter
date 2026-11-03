@@ -12,5 +12,6 @@ export default defineConfig({
     include: ['test/**/*.test.ts'],
     // vanillajs-datepicker calls document.createRange() when it is imported.
     environment: 'happy-dom',
+    setupFiles: ['test/setup.ts'],
   },
 });

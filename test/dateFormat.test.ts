@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // The only reference to the library in the tests: swap these lines when format/parse is replaced.
 import { Datepicker } from 'vanillajs-datepicker';
@@ -182,6 +182,36 @@ describe('parseDate', () => {
     ['01052026', 'mmddyyyy', localDate(89694, 10, 15)],
   ])('reads %s (%s) as one number because it has no separators', (text, format, expected) => {
     expect(parseDate(text, format, 'en')).toBe(expected);
+  });
+
+  describe('when today is a day other months do not have', () => {
+    const setToday = (year: number, month: number, day: number): void => {
+      vi.setSystemTime(new Date(year, month - 1, day, 12, 30));
+    };
+
+    it.each([
+      ['02/15/2026', 'mm/dd/yyyy', localDate(2026, 2, 15)],
+      ['02', 'mm', localDate(2026, 2, 28)],
+      ['2026-02', 'yyyy-mm', localDate(2026, 2, 28)],
+      ['04', 'mm', localDate(2026, 4, 30)],
+      ['Feb', 'M', localDate(2026, 2, 28)],
+    ])('clamps the month in %s (%s) on January 31', (text, format, expected) => {
+      setToday(2026, 1, 31);
+      expect(parseDate(text, format, 'en')).toBe(expected);
+    });
+
+    it.each([
+      ['02/15/2026', 'mm/dd/yyyy', localDate(2026, 2, 15)],
+      ['2026', 'yyyy', localDate(2026, 3, 1)],
+      ['2028', 'yyyy', localDate(2028, 2, 29)],
+    ])('applies the year in %s (%s) on February 29', (text, format, expected) => {
+      setToday(2024, 2, 29);
+      expect(parseDate(text, format, 'en')).toBe(expected);
+    });
+  });
+
+  it('uses the last of the repeated tokens', () => {
+    expect(parseDate('01-02-2026-03', 'mm-mm-yyyy-mm', 'en')).toBe(localDate(2026, 3, 15));
   });
 
   it('returns undefined for an empty string', () => {
