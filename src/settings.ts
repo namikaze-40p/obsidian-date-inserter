@@ -68,6 +68,14 @@ const DAY_OF_WEEK = {
   sat: 6 as const,
 };
 
+type ControlDefinition = {
+  name: string;
+  desc: string;
+  control:
+    | { type: 'dropdown'; key: string; options: Record<string, string> }
+    | { type: 'toggle'; key: string };
+};
+
 export class SettingTab extends PluginSettingTab {
   private static readonly DATE_FORMAT_META: { name: string; shortDesc: string }[] = [
     { name: 'Date format', shortDesc: 'Date format to be inserted.' },
@@ -110,6 +118,36 @@ export class SettingTab extends PluginSettingTab {
     { key: 'highlightSat', day: 'sat', label: 'Saturday' },
   ];
 
+  private static readonly DAY_OF_WEEK_HEADING = 'Highlight days of week';
+
+  private static readonly CONTROL_DEFINITIONS: ControlDefinition[] = [
+    {
+      name: 'Default date on calendar open',
+      desc: 'Choose which date is selected when opening the calendar.',
+      control: { type: 'dropdown', key: 'defaultDate', options: DEFAULT_DATE_OPTIONS },
+    },
+    {
+      name: 'Language',
+      desc: 'Set calendar and date-related languages.',
+      control: { type: 'dropdown', key: 'language', options: LANGUAGES },
+    },
+    {
+      name: 'Week start',
+      desc: 'Start day of the week.',
+      control: { type: 'dropdown', key: 'weekStart', options: SettingTab.WEEK_START_OPTIONS },
+    },
+    {
+      name: 'Week numbers',
+      desc: 'Show week numbers in the calendar.',
+      control: { type: 'dropdown', key: 'weekNumbers', options: SettingTab.WEEK_NUMBERS_OPTIONS },
+    },
+    {
+      name: 'Highlight the today',
+      desc: 'Whether to highlight the today.',
+      control: { type: 'toggle', key: 'todayHighlight' },
+    },
+  ];
+
   private _updateDateFormatSpecs = debounce(
     () => {
       this._plugin.updateDateFormatSpecs().catch(console.error);
@@ -137,54 +175,9 @@ export class SettingTab extends PluginSettingTab {
     this.buildDateFormatSetting(new Setting(containerEl), 0);
     this.buildDateFormatSetting(new Setting(containerEl), 1);
 
-    new Setting(containerEl)
-      .setName('Default date on calendar open')
-      .setDesc('Choose which date is selected when opening the calendar.')
-      .addDropdown((dropdown) =>
-        dropdown
-          .addOptions(DEFAULT_DATE_OPTIONS)
-          .setValue(this.getControlValue('defaultDate') as string)
-          .onChange(async (value) => await this.setControlValue('defaultDate', value)),
-      );
-
-    new Setting(containerEl)
-      .setName('Language')
-      .setDesc('Set calendar and date-related languages.')
-      .addDropdown((dropdown) =>
-        dropdown
-          .addOptions(LANGUAGES)
-          .setValue(this.getControlValue('language') as string)
-          .onChange(async (value) => await this.setControlValue('language', value)),
-      );
-
-    new Setting(containerEl)
-      .setName('Week start')
-      .setDesc('Start day of the week.')
-      .addDropdown((dropdown) =>
-        dropdown
-          .addOptions(SettingTab.WEEK_START_OPTIONS)
-          .setValue(this.getControlValue('weekStart') as string)
-          .onChange(async (value) => await this.setControlValue('weekStart', value)),
-      );
-
-    new Setting(containerEl)
-      .setName('Week numbers')
-      .setDesc('Show week numbers in the calendar.')
-      .addDropdown((dropdown) =>
-        dropdown
-          .addOptions(SettingTab.WEEK_NUMBERS_OPTIONS)
-          .setValue(this.getControlValue('weekNumbers') as string)
-          .onChange(async (value) => await this.setControlValue('weekNumbers', value)),
-      );
-
-    new Setting(containerEl)
-      .setName('Highlight the today')
-      .setDesc('Whether to highlight the today.')
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.getControlValue('todayHighlight') as boolean)
-          .onChange(async (value) => await this.setControlValue('todayHighlight', value)),
-      );
+    for (const definition of SettingTab.CONTROL_DEFINITIONS) {
+      this.buildControlSetting(new Setting(containerEl), definition);
+    }
 
     this.buildDaysOfWeekHighlightedSetting(new Setting(containerEl));
   }
@@ -204,53 +197,10 @@ export class SettingTab extends PluginSettingTab {
         desc: SettingTab.DATE_FORMAT_META[1].shortDesc,
         render: (setting: Setting) => this.buildDateFormatSetting(setting, 1),
       },
-      {
-        name: 'Default date on calendar open',
-        desc: 'Choose which date is selected when opening the calendar.',
-        control: {
-          type: 'dropdown',
-          key: 'defaultDate',
-          options: DEFAULT_DATE_OPTIONS,
-        },
-      },
-      {
-        name: 'Language',
-        desc: 'Set calendar and date-related languages.',
-        control: {
-          type: 'dropdown',
-          key: 'language',
-          options: LANGUAGES,
-        },
-      },
-      {
-        name: 'Week start',
-        desc: 'Start day of the week.',
-        control: {
-          type: 'dropdown',
-          key: 'weekStart',
-          options: SettingTab.WEEK_START_OPTIONS,
-        },
-      },
-      {
-        name: 'Week numbers',
-        desc: 'Show week numbers in the calendar.',
-        control: {
-          type: 'dropdown',
-          key: 'weekNumbers',
-          options: SettingTab.WEEK_NUMBERS_OPTIONS,
-        },
-      },
-      {
-        name: 'Highlight the today',
-        desc: 'Whether to highlight the today.',
-        control: {
-          type: 'toggle',
-          key: 'todayHighlight',
-        },
-      },
+      ...SettingTab.CONTROL_DEFINITIONS,
       {
         type: 'group',
-        heading: 'Highlight days of week',
+        heading: SettingTab.DAY_OF_WEEK_HEADING,
         items: SettingTab.DAY_OF_WEEK_CONTROLS.map(({ key, label }) => ({
           name: label,
           control: { type: 'toggle' as const, key },
@@ -323,6 +273,24 @@ export class SettingTab extends PluginSettingTab {
     return SettingTab.DAY_OF_WEEK_CONTROLS.find((control) => control.key === key)?.day;
   }
 
+  private buildControlSetting(setting: Setting, { name, desc, control }: ControlDefinition): void {
+    setting.setName(name).setDesc(desc);
+    if (control.type === 'dropdown') {
+      setting.addDropdown((dropdown) =>
+        dropdown
+          .addOptions(control.options)
+          .setValue(this.getControlValue(control.key) as string)
+          .onChange(async (value) => await this.setControlValue(control.key, value)),
+      );
+    } else {
+      setting.addToggle((toggle) =>
+        toggle
+          .setValue(this.getControlValue(control.key) as boolean)
+          .onChange(async (value) => await this.setControlValue(control.key, value)),
+      );
+    }
+  }
+
   private buildDateFormatSetting(setting: Setting, index: 0 | 1): void {
     const { name, shortDesc } = SettingTab.DATE_FORMAT_META[index];
     const fallback = index === 0 ? DEFAULT_SETTINGS.dateFormatSpecs[0].format : '';
@@ -364,7 +332,7 @@ export class SettingTab extends PluginSettingTab {
 
   private buildDaysOfWeekHighlightedSetting(setting: Setting): void {
     setting
-      .setName('Highlight days of week')
+      .setName(SettingTab.DAY_OF_WEEK_HEADING)
       .setDesc('Days of the week to highlight in the calendar.');
 
     const parent = setting.settingEl.parentElement;
