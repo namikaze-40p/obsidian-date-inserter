@@ -1,12 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-// The only reference to the library in the tests: swap these lines when format/parse is replaced.
-import { Datepicker } from 'vanillajs-datepicker';
-import { LOCALES } from '../src/locales';
-
-Object.assign(Datepicker.locales, LOCALES);
-const { formatDate, parseDate } = Datepicker;
-
+import { formatDate, parseDate } from '../src/dateFormat';
 import { TODAY, localDate, useFixedToday } from './helpers';
 
 useFixedToday();

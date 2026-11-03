@@ -3,6 +3,7 @@ import { App, Editor, Modal, Notice } from 'obsidian';
 import { Datepicker } from 'vanillajs-datepicker';
 import { DatepickerOptions } from 'vanillajs-datepicker/Datepicker';
 
+import { formatDate, hasDateToken, parseDate } from './dateFormat.js';
 import { LOCALES } from './locales';
 import { DEFAULT_SETTINGS, DateFormatSpec, Settings } from './settings.js';
 
@@ -14,6 +15,7 @@ export class CalendarModal extends Modal {
   private _detectedRanges: [number, number][] = [];
   private _detectedLineNo = 0;
   private _hasInitialSelection = false;
+  private _format = '';
 
   constructor(
     app: App,
@@ -45,15 +47,16 @@ export class CalendarModal extends Modal {
         }
       }, 0);
     });
-    inputEl.addEventListener('changeDate', () => {
+    inputEl.addEventListener('changeDate', (ev: Event & { detail: { date: Date } }) => {
       if (!this._isSelected) {
+        const date = formatDate(ev.detail.date.getTime(), this._format, this._settings.language);
         this._isSelected = true;
         if (this._editor) {
-          this.insertDateToCursorPosition(inputEl.value, this._editor);
+          this.insertDateToCursorPosition(date, this._editor);
         } else {
           if (navigator.clipboard) {
             navigator.clipboard
-              .writeText(inputEl.value)
+              .writeText(date)
               .then(() => new Notice('Date copied to clipboard.'))
               .catch(() => new Notice('Failed to copy date to clipboard.'));
           }
@@ -63,7 +66,7 @@ export class CalendarModal extends Modal {
     });
 
     if (this._settings.dateFormatSpecs.filter(({ format }) => format).length > 1) {
-      this.setupFormatButtons(datepicker);
+      this.setupFormatButtons();
     }
   }
 
@@ -84,14 +87,14 @@ export class CalendarModal extends Modal {
     const daysOfWeekHighlighted = [sun, mon, tue, wed, thu, fri, sat].filter(
       (val) => val !== undefined,
     ) as number[];
-    const format = settings.dateFormatSpecs[0].format || DEFAULT_SETTINGS.dateFormatSpecs[0].format;
+    const format = settings.dateFormatSpecs[0].format;
+    this._format = hasDateToken(format) ? format : DEFAULT_SETTINGS.dateFormatSpecs[0].format;
     const options: DatepickerOptions = {
       language: settings.language,
       daysOfWeekHighlighted,
       weekStart: settings.weekStart,
       weekNumbers: settings.weekNumbers,
       todayHighlight: settings.todayHighlight,
-      format,
       defaultViewDate: this.getStartDate(
         settings.dateFormatSpecs,
         settings.defaultDate === 'today',
@@ -187,12 +190,10 @@ export class CalendarModal extends Modal {
   private parseSelection(format: string, selection: string): number | undefined {
     const locale = this._settings.language || DEFAULT_SETTINGS.language;
     try {
-      const parsed = Datepicker.parseDate(selection, format, locale);
-      return parsed && Datepicker.formatDate(parsed, format, locale) === selection
-        ? parsed
-        : undefined;
+      const parsed = parseDate(selection, format, locale);
+      return parsed && formatDate(parsed, format, locale) === selection ? parsed : undefined;
     } catch {
-      // Datepicker throws on a format without any date tokens (e.g. "abc").
+      // Both throw on a format without any date tokens (e.g. "abc").
       return undefined;
     }
   }
@@ -204,14 +205,14 @@ export class CalendarModal extends Modal {
     return [min, max];
   }
 
-  private setupFormatButtons(datepicker: Datepicker): void {
+  private setupFormatButtons(): void {
     this.contentEl.createDiv('format-buttons', (el) => {
       const [format, format2] = this._settings.dateFormatSpecs.map(({ format }) => format);
 
       const formatBtn1 = el.createEl('button');
       formatBtn1.createSpan('').textContent = format;
       formatBtn1.addEventListener('click', () => {
-        datepicker.config.format = format;
+        this._format = format;
         formatBtn1.addClass('selected');
         formatBtn2.removeClass('selected');
         this.updateEditorSelection();
@@ -221,7 +222,7 @@ export class CalendarModal extends Modal {
       const formatBtn2 = el.createEl('button');
       formatBtn2.createSpan('').textContent = format2;
       formatBtn2.addEventListener('click', () => {
-        datepicker.config.format = format2;
+        this._format = format2;
         formatBtn2.addClass('selected');
         formatBtn1.removeClass('selected');
         this.updateEditorSelection();
